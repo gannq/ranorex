@@ -1,10 +1,10 @@
   public void VerifyLimit()
         {
-           		string limitCheck = repo.portal.QA.PhoneTextField.Element.GetAttributeValueText("InnerText");;
+           	string limitCheck = repo.PhoneTextField.Element.GetAttributeValueText("InnerText");;
             	string intK = string.Empty; 
             	int k = limitCheck.Length; 
             	
-            	Report.Log(ReportLevel.Info, "Get Value", "Getting attribute 'InnerText' from item 'portal.QA.PhoneTextField' and assigning its value to variable 'phoneInnerText'.", repo.portal.QA.PhoneTextFieldInfo);
+            	Report.Log(ReportLevel.Info, "Get Value", "Getting attribute 'InnerText' from item 'PhoneTextField' and assigning its value to variable 'phoneInnerText'.", PhoneTextFieldInfo);
 
             	intK = k.ToString(); 
             	
