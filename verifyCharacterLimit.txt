@@ -1,6 +1,6 @@
   public void VerifyLimit()
         {
-           	string limitCheck = repo.PhoneTextField.Element.GetAttributeValueText("InnerText");;
+           	string limitCheck = repo.PhoneTextField.Element.GetAttributeValueText("InnerText");
             	string intK = string.Empty; 
             	int k = limitCheck.Length; 
             	
