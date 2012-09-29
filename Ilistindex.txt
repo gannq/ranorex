@@ -1,0 +1,9 @@
+Ranorex.WebElement tmp = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string text = "/dom[@domain='devvprtweb403']//div[#'RadWindowWrapper_ctl00_ctl00_CreateQARequest']/table/tbody/tr[2]/td[2]/iframe//div[#'RadToolTipWrapper_ctl00_ctl00_Content_ContentPlaceHolderMain_ConfirmationTT']/table/tbody/tr[2]/td[2]/div/div[@innertext~'']";
+        	bool found = Host.Local.TryFindSingle(text.ToString(), timeout, out tmp);
+        	
+        	
+        	msgListArr = (IList)tmp.Children;
+		string targStr = msgListArr[0].ToString();

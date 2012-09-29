@@ -1,0 +1,11 @@
+Ranorex.TdTag obj = null;
+         	var grid = repo.portal.buttons.Column_Headings.rgMasterTable;
+			// get all columns in specified row and store them in a list   
+			IList<Ranorex.TdTag> myCols = grid.FindDescendants<Ranorex.TdTag>();  
+			foreach(Ranorex.TdTag tag in myCols)
+			{
+				
+				 Report.Log(ReportLevel.Info,"Row Count: ", myCols.Count.ToString());
+				 
+				
+			}

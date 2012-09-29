@@ -1,0 +1,131 @@
+/dom[@domain='devvprtweb403']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00__0']/td[5]
+
+.//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00__1']/td[5]
+
+.//table[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00']/thead/tr/th[@innertext='No Discrepancy']
+
+
+
+/dom[@domain='devvprtweb403']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00__0']/td[5]
+
+/dom[@domain='devvprtweb403']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00__1']/td[5]
+
+string[] ctrlArr = {"0", "1"};
+
+Ranorex.WebElement ctrl = string.Format("/dom[@domain='devvprtweb{0}']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00__{1}']/td[5], "403", ctrlArr[0].ToString());
+ctrl.Innertext;
+
+int colArr[0] = ConvertInt32(ctrl.
+
+string<list> = 
+
+
+
+
+public void count5()
+	{
+		
+		portalqa.portalqaRepository repo = new portalqa.portalqaRepository(); 
+		var reportCell = repo.portal.page.reports.reportCell; 
+		IList<Ranorex.DivTag> myList = reportCell.FindDescendants<Ranorex.DivTag>();  
+		foreach(Ranorex.DivTag tag in myList )  
+				{  
+    				Report.Info(tag.GetInnerHtml());  
+			} 
+	}
+
+public void count()
+        {
+        	portalqa.portalqaRepository repo = new portalqa.portalqaRepository();
+        	
+        	var firstTotal = Convert.ToInt32(count5());
+        	var secondTotal = Convert.ToInt32(count1()); 
+        	var myTotal = firstTotal + secondTotal;
+        	myTotal.ToString(); //works up to here
+        	
+        	var reviewTotalCell = repo.portal.page.reports.ReviewTotalCell;
+        	
+        	//var tag = reviewTotalCell.InnerText;
+        	Report.Info(reviewTotalCell.GetInnerHtml());
+        	//reviewTotalCell = Convert.ToInt32(reviewTotalCell); 
+        	
+        	
+        }
+
+ public void count()
+        {
+        	portalqa.portalqaRepository repo = new portalqa.portalqaRepository();
+        	
+        	var firstTotal = Convert.ToInt32(count5());
+        	var secondTotal = Convert.ToInt32(count1()); 
+        	var myTotal = firstTotal + secondTotal;
+        	var totalString = myTotal.ToString(); //works up to here
+        	
+        	Report.Info(totalString, "This is the total from any cells declared");
+        	
+        	var reviewTotalCell = repo.portal.page.reports.ReviewTotalCell.GetInnerHtml();
+        	Report.Info(reviewTotalCell);
+        	var reviewTotal = Convert.ToInt32(reviewTotalCell);
+        	if(myTotal == reviewTotal)
+        	{
+        		Report.Info("Cells match Review Total");
+        	}
+        	
+        	else
+        	{
+        		Report.Error("Cells do not match"); 
+        	}
+       
+        	//reviewTotalCell = Convert.ToInt32(reviewTotalCell);
+        	
+        	
+        }
+
+public void test()
+        {
+        	portalqa.portalqaRepository repo = new portalqa.portalqaRepository();
+        	
+        	var firstTotal = Convert.ToInt32(trow1());
+        	var secondTotal = Convert.ToInt32(trow2()); 
+        	var myTotal = firstTotal + secondTotal;
+        	var totalString = myTotal.ToString(); //works up to here
+        	
+        	Report.Info(totalString, "This is the tentative total");
+        	
+        	var reviewTotalCell = repo.portal.page.reports.SubmittedDiscrepReviewTotal.GetInnerHtml();
+        	Report.Info(reviewTotalCell, "This is the actual matched value from the TOTAL cell");
+        	var reviewTotal = Convert.ToInt32(reviewTotalCell);
+        	if(myTotal == reviewTotal)
+        	{
+        		Report.Info("Cells match Review Total");
+        	}
+        	
+        	else
+        	{
+        		Report.Failure("Cells do not match"); 
+        	}
+       
+        	//reviewTotalCell = Convert.ToInt32(reviewTotalCell);
+        	
+        	
+        }
+	  
+	  public int trow1()
+        {
+	  		int myTempInt = 0;
+	  		portalqa.portalqaRepository repo = new portalqa.portalqaRepository();
+        	var reportCell = repo.portal.page.reports.testRow1.GetInnerHtml();
+			myTempInt = Convert.ToInt32(reportCell); 
+			Report.Info(reportCell, "This is the value from the first cell");
+			return myTempInt;
+        }
+        
+	  	public int trow2()
+        {
+        	int myTempInt = 0;
+        	portalqa.portalqaRepository repo = new portalqa.portalqaRepository();
+        	var reportCell = repo.portal.page.reports.testRow2.GetInnerHtml();
+			myTempInt = Convert.ToInt32(reportCell); 
+			Report.Info(reportCell, "This is the value from the second cell");
+			return myTempInt;
+        }

@@ -1,0 +1,8 @@
+$string = 'fdsgd3.141asdggfgfdsdniojn'; 
+
+echo preg_replace ( '#\D*?(\d+(\.\d+)?)\D*#', '$1', $string ); 
+
+
+string targStr = string.Empty; 
+Regex rgx = new Regex("[^0-9]");
+targStr = rgx.Replace(targStrTmp, ""); 

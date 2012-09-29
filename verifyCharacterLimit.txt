@@ -1,0 +1,33 @@
+  public void VerifyLimit()
+        {
+           		string limitCheck = repo.portal.QA.PhoneTextField.Element.GetAttributeValueText("InnerText");;
+            	string intK = string.Empty; 
+            	int k = limitCheck.Length; 
+            	
+            	Report.Log(ReportLevel.Info, "Get Value", "Getting attribute 'InnerText' from item 'portal.QA.PhoneTextField' and assigning its value to variable 'phoneInnerText'.", repo.portal.QA.PhoneTextFieldInfo);
+
+            	intK = k.ToString(); 
+            	
+            	try
+	            {
+            		if(k >= 26)
+            	
+	            	{
+	            		Report.Failure("Fail.  Limit does not seem to match"); 
+	            	}
+            		
+            	else
+            	{
+            		Report.Success("Pass.  Limit seems to match the requirements"); 
+            	}
+            	
+            	Report.Info(intK);
+            	Report.Info(limitCheck);
+            	
+            	catch(Exception e)
+            	{
+            		Report.Failure("exception error"); 
+            	}
+            	
+            	}
+        }

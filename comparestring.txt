@@ -1,0 +1,19 @@
+public static bool IListTextSearch(IList iListArr, string targTxtStr)
+		{
+			bool rtnStatus = false;
+			string iListItemStr = string.Empty;
+			
+			for(int i = 0; i <= iListArr.Count - 1; i++)
+			{
+				iListItemStr = iListArr[i].ToString();
+				
+				if (iListItemStr.Contains(targTxtStr))
+				{
+				    rtnStatus = true;
+				    break;
+				}
+				    
+			}
+			
+			return rtnStatus;
+		}
