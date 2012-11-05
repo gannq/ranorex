@@ -1,3 +1,99 @@
+ public static void CentralTimeCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr; 
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	 
+        	 
+        	
+        	 
+        	 
+        	 //selectCtrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'Content_MainHeaderCtrl_MainHeaderCtrl_{1}']", StackPortal.ToString(), ctrlStrArr[indexx].ToString());
+        	  
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+
+	         
+	         
+//	         foreach(Ranorex.TdTag tag in myList2 )
+         	 {  
+
+//	         		myList2[1].MoveTo(); 
+//	         		myList2[1].PerformClick();
+	         		
+	         	maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         		for (int j = 0; j < maxLoop; j++)
+	         		{
+
+//	         			indexxTmp = indexx / maxLoop;
+				         
+				        indexx += offSet;
+				         			
+				        myList2[indexx].MoveTo();
+				        
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setCentralTime(); 
+							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); ;
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+	         		}}}
+
 Ranorex.WebElement tmp = null;
         	Duration timeout = 15000;
         	IList msgListArr = null;
