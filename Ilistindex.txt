@@ -1,4 +1,2180 @@
- public static void CentralTimeCompare()
+/*
+ * Created by Ranorex
+ * User: brock.fredin
+ * Date: 8/30/2012
+ * Time: 9:04 AM
+ * 
+ * To change this template use Tools | Options | Coding | Edit Standard Headers.
+ */
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Drawing;
+using System.Threading;
+using WinForms = System.Windows.Forms;
+using Microsoft.Win32;
+using System.Windows.Forms; 
+
+
+using Ranorex;
+using Ranorex.Core;
+using Ranorex.Core.Testing;
+
+using portalqa.formatted.testcases;
+
+namespace portalqa.formatted.code
+{
+    /// <summary>
+    /// Description of utility.
+    /// </summary>
+    [TestModule("9EA6534F-128E-4032-8C2D-82D76108F6D2", ModuleType.UserCode, 1)]
+    public class utility : ITestModule
+    {
+        public static string StackPortal = "405";
+        public static string RequestID;  
+        public static string checkRequestID;  
+        public static string PatientName; 
+        public static string UserNameStr = string.Empty;
+		public static string PasswordStr = string.Empty;
+		public static string[] btnCntrlStr2 = {"/dom[@domain='devvprtweb{0}']//form[@title='Warning']/button[@text='OK']"}; 
+		public static string[] PortalResultsLogInNamesArr = {string.Empty};
+		public static string QAnetworkPath = string.Empty;
+		public static string QATemplatePath = string.Empty; 
+		public static string ClipboardData = string.Empty; 
+		public static string MRN = string.Empty; 
+		public static string FacilityName = string.Empty;
+		public static string QACompleted = string.Empty;
+		public static string Procedure = string.Empty;
+		public static string ArrivedCentralTime = string.Empty;
+		public static string ArrivedMountainTime = string.Empty;
+		
+        public utility()
+        {
+            // Do not delete - a parameterless constructor is required!
+        }
+
+        /// <summary>
+        /// Performs the playback of actions in this module.
+        /// </summary>
+        /// <remarks>You should not call this method directly, instead pass the module
+        /// instance to the <see cref="TestModuleRunner.Run(ITestModule)"/> method
+        /// that will in turn invoke this method.</remarks>
+        void ITestModule.Run()
+        {
+            Mouse.DefaultMoveTime = 300;
+            Keyboard.DefaultKeyPressTime = 100;
+            Delay.SpeedFactor = 1.0;
+        }
+        
+        public static void CountDoublePercent2(string row1, string row2, string total)
+        {     
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //Double Conversion Fields     
+            double doubleRow1 = -1.00;
+            double doubleRow2 = -1.00;
+            double doubleTotal = -1.00; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            double rowTotal = -1.00; 
+            double finalTotal = -1.00;
+            
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+            
+            //trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim); 
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            doubleRow1 = Convert.ToDouble(trimRow1); 
+            doubleRow2 = Convert.ToDouble(trimRow2); 
+            doubleTotal = Convert.ToDouble(trimTotal); 
+            
+            //total calcuations
+            rowTotal = doubleRow2 / doubleRow1; 
+            finalTotal = doubleTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(doubleTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+        
+		public static void CountDoublePercent(string row1, string row2, string total)
+        {     
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //Double Conversion Fields     
+            double doubleRow1 = -1.00;
+            double doubleRow2 = -1.00;
+            double doubleTotal = -1.00; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            double rowTotal = -1.00; 
+            double finalTotal = -1.00;
+            
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+            
+            //trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim); 
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            doubleRow1 = Convert.ToDouble(trimRow1); 
+            doubleRow2 = Convert.ToDouble(trimRow2); 
+            doubleTotal = Convert.ToDouble(trimTotal); 
+            
+            //total calcuations
+            rowTotal = doubleRow1 + doubleRow2; 
+            finalTotal = doubleTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(rowTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+		
+		public static void QATemplate(string requestID)
+		{
+			Ranorex.Form qaTemplatePath = null; 
+			string tmpPath = string.Format(@"\\devmrprweb{0}\c$\MRP\MRPrRepository\System\QA\LetterTemplates\", StackPortal).ToString();
+			QATemplatePath = tmpPath; 
+			
+			Duration timeout = 3000;
+			
+			try
+        	{
+				
+				ProcessStartInfo startInfo = new ProcessStartInfo("explorer.exe");
+	        	startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+	        	startInfo.Arguments = tmpPath;
+				Process.Start(startInfo);
+        	}
+        	
+        	catch(Exception e)
+        	{
+        		Report.Failure("The window did not open correctly"); 
+        	}
+        	
+        	Delay.Duration(3000); 
+        	
+        	if(tmpPath != null)
+        	{
+        		
+        		Report.Info("window found"); 
+        		
+        	}
+        	else
+        	{
+        		Report.Info("window NOT found"); 
+        	}
+		}
+		
+		public static void QALetter(string requestID)
+		{
+			
+			string tmpPath = string.Format(@"\\devmrprweb{0}\c$\MRP\MRPrRepository\ClientQALetters\{1}", StackPortal, requestID).ToString();
+			Duration timeout = 3000;
+			
+			QAnetworkPath = tmpPath;
+			
+			try
+        	{
+				
+				ProcessStartInfo startInfo = new ProcessStartInfo("explorer.exe");
+	        	startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+	        	startInfo.Arguments = tmpPath;
+				Process.Start(startInfo);
+        	}
+        	
+        	catch(Exception e)
+        	{
+        		Report.Failure("The window did not open correctly"); 
+        	}
+        	
+        	Delay.Duration(3000); 
+        	
+        	if(tmpPath != null)
+        	{
+        		
+        		Report.Info("window found"); 
+        		
+        	}
+        	else
+        	{
+        		Report.Info("window NOT found"); 
+        	}
+			
+		}
+		
+		public static void QALetterBackup(string requestID)
+		{
+			Ranorex.Form qaNetworkPath = null; 
+			string tmpPath = string.Format(@"\\devmrprweb{0}\c$\MRP\MRPrRepository\ClientQALetters\{1}", StackPortal, requestID);
+			Ranorex.WebElement formPath = tmpPath;
+			Duration timeout = 3000;
+			
+			try
+			{
+				formPath.GetPath().ToString(); 
+				
+				//found = Host.Local.TryFindSingle(string.Format(@"\\devmrprweb{0}\c$\MRP\MRPrRepository\ClientQALetters\{1}", StackPortal, requestID), timeout, out qaNetworkPath);
+					
+				if(Host.Local.TryFindSingle(tmpPath, timeout, out qaNetworkPath))
+				{
+					QAnetworkPath = qaNetworkPath.GetPath().ToString();
+					//QAnetworkPath = qaNetworkPath.ToString(); 
+					
+					qaNetworkPath.Activate();
+					formPath.GetPath(); 
+					
+					
+					Report.Info("window found"); 
+				}
+				else
+				{
+					Report.Info("Window find failure"); 
+				}
+			}
+			
+			catch(Ranorex.RanorexException e)
+			{
+				Report.Info("failure"); 
+			}
+		
+			//QAnetworkPath = string.Format(@"\\devmrprweb{0}\c$\MRP\MRPrRepository\ClientQALetters\{1}", StackPortal, requestID);
+			//QATemplatePath = string.Format(@" \\devmrprweb{0}\c$\MRP\MRPrRepository\ClientQALetters\{1}", StackPortal, requestID); 
+			
+		}
+		
+		[STAThread]
+		public static string CopyToClipboard()
+		{
+			ClipboardData = string.Empty; 
+			IDataObject iData = Clipboard.GetDataObject();
+			 
+			if(iData.GetDataPresent(DataFormats.Text))
+			 {
+		       // Yes it is, so display it in a text box.
+		       ClipboardData = (String)iData.GetData(DataFormats.Text);
+			 
+    		 }
+   			else
+   			 {
+       		
+      		   ClipboardData = "Could not retrieve data off the clipboard.";
+
+			 }
+		
+   			 return ClipboardData; 
+			
+   			 Report.Info(ClipboardData);
+		}
+		
+		
+		public static void AnalyzeClipboard()
+		{
+//			this.MRN = MRN; 
+//			this.facilityName = FacilityName; 
+//			this.Procedure = Procedure;
+//			this.QACompleted = QACompleted;
+			bool flag = false; 
+			
+			try
+			{
+				if(ClipboardData != null && MRN != "" && FacilityName != "" && Procedure != "" && QACompleted != "")
+				{
+					
+					if(ClipboardData.Contains(MRN))
+					{ 
+						Report.Info("The MRN MATCH for the patient is: ", MRN);
+					}
+					
+					if(ClipboardData.Contains(FacilityName))
+					{
+						Report.Info("The FACILITY name match is: ", FacilityName); 
+					}
+					
+					if(ClipboardData.Contains(Procedure))
+					{
+						Report.Info("The PROCEDURE name match is: ", Procedure); 
+					}
+					
+					/*if(ClipboardData.Contains(QACompleted))
+					{
+						Report.Info("The STATUS match is: ", QACompleted); 
+					}*/ 
+					
+					else
+					{
+						Report.Failure("one of the elements failed"); 
+					}
+				}
+				else
+				{
+					Report.Failure("fail.  Null values can't be compared.");
+						
+				}
+				
+			}
+			
+			catch(Exception e)
+			{
+				Report.Failure("test did not pass"); 
+			}
+		
+		}
+		
+		public static void AnalyzeClipboardPDF()
+		{
+//			this.MRN = MRN; 
+//			this.facilityName = FacilityName; 
+//			this.Procedure = Procedure;
+//			this.QACompleted = QACompleted;
+			bool flag = false; 
+			
+			try
+			{
+				if(ClipboardData != null && MRN != "" && RequestID != "")
+				{
+					
+					if(ClipboardData.Contains(MRN))
+					{ 
+						Report.Info("The MRN MATCH for the patient is: ", MRN);
+					}
+					
+					if(ClipboardData.Contains(RequestID))
+					{
+						Report.Info("The RequestID name match is: ", RequestID); 
+					}
+					
+					if(ClipboardData.Contains(PatientName))
+					{
+						Report.Info("The RequestID name match is: ", PatientName); 
+					}
+					
+					
+					else
+					{
+						Report.Failure("one of the elements failed"); 
+					}
+				}
+				else
+				{
+					Report.Failure("fail.  Null values can't be compared.");
+						
+				}
+				
+			}
+			
+			catch(Exception e)
+			{
+				Report.Failure("test did not pass"); 
+			}
+		
+		}
+		
+		public static void SetArrivedCentralTime(string arrivedCentral)
+		{
+			ArrivedCentralTime = arrivedCentral; 
+		}
+		
+		public static void SetArrivedMountainTime(string arrivedMountain)
+		{
+			ArrivedMountainTime = arrivedMountain; 
+		}
+		
+		public static void SetMRN(string mrn)
+		{
+			MRN = mrn; 
+		}
+		
+		public static void SetPatientName(string patientName)
+		{
+			PatientName = patientName; 
+		}
+		
+		public static void SetRequestID(string requestID)
+		{
+			RequestID = requestID; 
+		}
+		
+		public static void SetFacilityName(string facilityName)
+		{
+			FacilityName = facilityName; 
+		}
+		
+		public static void SetQACompleted(string qACompleted)
+		{
+			QACompleted = qACompleted; 
+		}
+		
+		public static void SetProcedure(string procedure)
+		{
+			Procedure = procedure; 
+		}
+		
+		public static void Match(string report, string selected)
+		{
+			
+			
+			
+		}
+		
+		public static bool TabCtrls(string headerCtrlStr)
+		{
+			string[] headerCtrlStrArr = {"Worklist", "Search", "QA Reports"};
+			string[] ctrlStrArr = {"1", "2", "3"};
+			string selectCtrlStr = string.Empty;
+			string strlogUser = "Selected Tab: ";
+			string strlogMsg = string.Empty;
+			bool rtnStatus = false;
+			int indexx = -1;
+						
+			try 
+			{
+				indexx = Array.IndexOf(headerCtrlStrArr, headerCtrlStr);
+			
+				if (indexx > -1)
+				{ 
+					selectCtrlStr = string.Format("/dom[@domain='devvprtweb{0}']//div[#'ctl00_ctl00_Content_RadTabStrip1']/div/ul/li[{2}]/a/span/span/span[@innertext='{1}']", StackPortal.ToString(), headerCtrlStrArr[indexx].ToString(), ctrlStrArr[indexx].ToString());
+					Ranorex.WebElement resultsHeaderCtrl = selectCtrlStr;
+					resultsHeaderCtrl.MoveTo();
+					resultsHeaderCtrl.PerformClick();
+					strlogUser += headerCtrlStr;
+					strlogMsg = string.Format("Select item without mouse' at Center. ", ctrlStrArr[indexx].ToString());
+					Delay.Milliseconds(500);
+		            
+		            rtnStatus = true;
+				}
+				
+				WriteToReportType("Info", string.Format("Select item without mouse 'Ranorex.WebElement.ctl00_Content_GridApplications_ctl00_{0}_gbccolumn' at Center. {1}", ctrlStrArr[indexx].ToString(), strlogUser), "Ranorex PerformClick()");
+				
+				return rtnStatus;
+			}
+			
+			catch (Exception e) 
+            {
+				WriteToReportType("Failure", "Unexpected exception occured: " + e.ToString());
+			 	return false;			 	
+			}
+			
+		}
+		
+		
+		public static bool ValidateLogInUser(string inputClrtStr, string userNameStr)
+		{
+			string[] logStrArr = {" - Validated", " - Not Validated"};
+			string logStr = string.Empty;
+			string prefixStr = "Logged In As ";
+			bool rtnStatus = false;
+			int indexx = -1;
+			
+			userNameStr = PortalResultsLogInNamesArr[0].ToString();
+			
+			indexx = indexx = Array.IndexOf(PortalResultsLogInNamesArr, userNameStr);
+			
+			try 
+			{
+				if (indexx > -1)
+				{
+					userNameStr = prefixStr + userNameStr;
+					Ranorex.WebElement apCtrlStr = string.Format(inputClrtStr, StackPortal.ToString(), PortalResultsLogInNamesArr[indexx].ToString());
+					
+					if (apCtrlStr.InnerText == userNameStr)
+					{
+						rtnStatus = true;
+					}
+					
+				}
+				else
+				{
+					TestResultsCode.WriteToReportType("Error", "Inputted User NOT In Code Array...", "User");
+				}
+				
+				if (rtnStatus)
+		        {
+					logStr = userNameStr + logStrArr[0].ToString();
+		        	TestResultsCode.WriteToReportType("Success", logStr, "Validate");
+		        }
+		        else
+		        {
+		        	logStr = userNameStr + logStrArr[1].ToString();
+		        	TestResultsCode.WriteToReportType("Failure", logStr, "Validate");
+		        }
+				
+		        return rtnStatus;
+	        }
+			
+			catch (Exception e) 
+            {
+				WriteToReportType("Failure", "Unexpected exception occured: " + e.ToString());
+			 	return false;			 	
+			}
+		}
+		
+		public static bool WriteToReportType(string minReportLevelStr, string textStr, string categoryStr = null)
+		{
+			string[] minReportLevelArr = {"Debug", "Info", "Warn", "Error", "Success", "Failure", "Screenshot"}; //Correct Inputs to Method
+			int indexx = Array.IndexOf(minReportLevelArr, minReportLevelStr); //Did method get the correct input
+			
+			try 
+			{
+				
+				if (indexx > -1) //Did Input type get found
+				{
+					if (categoryStr == null)
+					{
+						categoryStr = "User";
+					}
+					
+					switch (minReportLevelStr) //Select correct input type
+					{
+						case "Debug":
+							Ranorex.Report.Debug(categoryStr, textStr);
+							break;
+						case "Info":
+							Ranorex.Report.Info(categoryStr, textStr);
+							break;
+						case "Warn":
+							Ranorex.Report.Warn(categoryStr, textStr);
+							break;
+						case "Error":
+							Ranorex.Report.Error(categoryStr, textStr);
+							break;
+						case "Success":
+							Ranorex.Report.Success(categoryStr, textStr);
+							break;
+						case "Failure":
+							Ranorex.Report.Failure(categoryStr, textStr);
+							break;
+						case "Screenshot":
+							Ranorex.Report.Screenshot();
+							break;
+					}
+				}
+				else
+				{
+					WriteToReportType("Info", "Report Level Type NOT Correct: " + minReportLevelStr);
+				}
+				
+				return true;
+			}
+			
+			catch (Exception e) 
+            {
+				WriteToReportType("Failure", "Unexpected exception occured: " + e.ToString());
+			 	return false;			 	
+			}
+		}
+		
+		public static void QAStatusCancelClick()
+		{
+			int indexx = -11;
+        	int offSet = 11; 
+        	int maxLoop = 0; 
+        	int indexxTmp = 0; 
+        	string tmpStr = string.Empty; 
+        	string[] textStrArr = {"No QA opened", "Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	Ranorex.DivTag grid = portalqaRepository.Instance.portal.SearchQA.Grid2;
+        	//var FacilityName = repo.RISAdminUserSearch1.AOFoxHospital.Element.GetAttributeValueText("InnerText");
+            Ranorex.WebElement cancel = portalqaRepository.Instance.portal.WorkList.Cancel; 
+        	
+            IList<Ranorex.TdTag>myList = grid.FindDescendants<Ranorex.TdTag>();
+        	
+        	maxLoop = (int)(myList.Count / (offSet));
+        	for(int i = 0; i <= maxLoop - 1; i++)
+        	    {
+        	   			
+        		    indexx += offSet;
+        	    	myList[indexx].MoveTo(); 
+        	    	tmpStr = myList[indexx].InnerText;
+        	    	Report.Info(tmpStr); 
+        	    	
+        	    	if(tmpStr == textStrArr[1])
+			        	{
+			        		Report.Success("Returned result matches the associated facility"); 
+			        		Report.Info("The grid record returned result is " + tmpStr); 
+			        		cancel.Click(); 
+
+			        	}
+        	    }
+        	
+        		if(tmpStr == "No Items Found")
+        		{
+        			Report.Info("No items were returned and unable to do test case"); 
+        		}
+        		
+        		if(tmpStr == "")
+        		{
+        			Report.Info("No items were returned and unable to complete test"); 
+        			
+        		}
+        		
+//        		if(tmpStr != FacilityName)
+//        		{
+//        			Report.Failure("Facilities not associated with this search are being returned in grid results");
+//        		}
+        	
+        	    
+        	    Report.Info(tmpStr);
+		}
+		
+		public static void QAStatusDetailClick()
+		{
+			int indexx = -11;
+        	int offSet = 11; 
+        	int maxLoop = 0; 
+        	int indexxTmp = 0; 
+        	string tmpStr = string.Empty; 
+        	string[] textStrArr = {"No QA opened", "Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	Ranorex.DivTag grid = portalqaRepository.Instance.portal.SearchQA.Grid2;
+        	//var FacilityName = repo.RISAdminUserSearch1.AOFoxHospital.Element.GetAttributeValueText("InnerText");
+            Ranorex.WebElement details = portalqaRepository.Instance.portal.WorkList.Details; 
+         
+            IList<Ranorex.TdTag>myList = grid.FindDescendants<Ranorex.TdTag>();
+        	
+        	maxLoop = (int)(myList.Count / (offSet));
+        	for(int i = 0; i <= maxLoop - 1; i++)
+        	    {
+        	   			
+        		    indexx += offSet;
+        	    	myList[indexx].MoveTo(); 
+        	    	tmpStr = myList[indexx].InnerText;
+        	    	Report.Info(tmpStr); 
+        	    	
+        	    	if(tmpStr == textStrArr[1])
+			        	{
+			        		Report.Success("Returned result matches the associated facility"); 
+			        		Report.Info("The grid record returned result is " + tmpStr); 
+			        		details.Click(); 
+			        		break; 
+			        	}
+        	    }
+        	
+        		if(tmpStr == "No Items Found")
+        		{
+        			Report.Info("No items were returned and unable to do test case"); 
+        		}
+        		
+        		if(tmpStr == "")
+        		{
+        			Report.Info("No items were returned and unable to complete test"); 
+        			
+        		}
+        		
+//        		if(tmpStr != FacilityName)
+//        		{
+//        			Report.Failure("Facilities not associated with this search are being returned in grid results");
+//        		}
+        	
+        	    
+        	    Report.Info(tmpStr);
+		}
+	
+		public static void CountCell(string row1, string row2, string total)
+        {       
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimRow3 = string.Empty; 
+            string trimRow4 = string.Empty; 
+            string trimRow5 = string.Empty; 
+            string trimRow6 = string.Empty; 
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //integer Conversion Fields     
+            int intRow1 = 0;
+            int intRow2 = 0;
+            int intRow3 = 0;
+            int intRow4 = 0;
+            int intRow5 = 0;
+            int intRow6 = 0;
+            int intTotal = 0; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            int rowTotal = 0; 
+            int finalTotal = 0;
+  
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+
+//            if(row1.Contains('%', '.')
+            
+			//trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim);
+            trimRow2 = row2.TrimEnd(myTrim); 
+   //         trimRow3 = row3.TrimEnd(myTrim);
+  //          trimRow4 = row4.TrimEnd(myTrim);
+  //          trimRow5 = row5.TrimEnd(myTrim);
+  //          trimRow5 = row6.TrimEnd(myTrim);
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            intRow1 = Convert.ToInt32(trimRow1); 
+            intRow2 = Convert.ToInt32(trimRow2); 
+            //intRow3 = Convert.ToInt32(trimRow3); 
+           // intRow4 = Convert.ToInt32(trimRow4); 
+            //intRow5 = Convert.ToInt32(trimRow5); 
+           // intRow6 = Convert.ToInt32(trimRow6); 
+            intTotal = Convert.ToInt32(trimTotal); 
+            
+            //total calcuations
+            rowTotal = intRow1 + intRow2; 
+            finalTotal = intTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(rowTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+		
+		 public static void CountDouble(string row1, string row2, string total)
+        {
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //Double Conversion Fields     
+            double doubleRow1 = -1.00;
+            double doubleRow2 = -1.00;
+            double doubleTotal = -1.00; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            double rowTotal = -1.00; 
+            double finalTotal = -1.00;
+            
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+       
+            //trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim); 
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            doubleRow1 = Convert.ToDouble(trimRow1); 
+            doubleRow2 = Convert.ToDouble(trimRow2); 
+            doubleTotal = Convert.ToDouble(trimTotal); 
+            
+            //total calcuations
+            rowTotal = doubleRow1 + doubleRow2; 
+            finalTotal = doubleTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(rowTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+		 
+		 
+		 	
+		 	public static void CountDivideDoublePercent(string row1, string row2, string total)
+        {     
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimTotal = string.Empty; 
+            
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //Double Conversion Fields     
+            double doubleRow1 = -1.00;
+            double doubleRow2 = -1.00;
+            double doubleTotal = -1.00; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            double rowTotal = -1.00; 
+            double finalTotal = -1.00;
+            double preLimTotal = -1.00; 
+            
+            
+            
+            //string format = String.Format("{0:#.0}", rowTotal);   
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+            
+            //trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim); 
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            doubleRow1 = Convert.ToDouble(trimRow1); 
+            doubleRow2 = Convert.ToDouble(trimRow2); 
+            //doubleTotal = Convert.ToDouble(trimTotal); 
+            
+            //total calcuations
+            
+           // introwTotal = introw2 / introw1; 
+            rowTotal = doubleRow2 / doubleRow1;
+            double doubRowTotal = rowTotal * 100; 
+            
+            //finalTotal = trimTotal; 
+            
+            //finalTotal = doubleTotal;
+            
+            string rowTotals = rowTotal.ToString("R");
+            string finalTotals = trimTotal.ToString();
+            //string finalTotals = finalTotal.ToString("R");
+            string sRowTotals = string.Format("{0:0.000}", doubRowTotal); 
+            
+            //Compare statement.  Could use a try catch as well
+            if(sRowTotals == finalTotals)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+            	
+            	
+        }
+
+		 	public static void CountD(string row1, string row2, string total)
+        {
+          
+           
+		 	//trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //Double Conversion Fields     
+            double doubleRow1 = -1.00;
+            double doubleRow2 = -1.00;
+            double doubleTotal = -1.00; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            double rowTotal = -1.00; 
+            double finalTotal = -1.00;
+            
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+
+            //trim replacement using myTrim
+            trimRow1 = row1.TrimEnd(myTrim); 
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim); 
+            
+            //double conversions
+            doubleRow1 = Convert.ToDouble(trimRow1); 
+            doubleRow2 = Convert.ToDouble(trimRow2); 
+            doubleTotal = Convert.ToDouble(trimTotal); 
+            
+            //total calcuations
+            rowTotal = doubleRow1 + doubleRow2; 
+            finalTotal = doubleTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(rowTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+        
+//        public static void countMany()
+//        {
+//        	rowStrArr[9] row9 = new rowStrArr();
+//      		row9.toString();
+//        	rowStrArray = row9
+//        	foreach(Ranorex.DivTag tag in rowStrArr)
+//       	{
+//       		Report.Info(tag.GetInnerHtml());  
+//       	}
+//        
+//        }
+		public static void DivideCell(string row1, string row2, string total)
+        {       
+            //trims
+            string trimRow1 = string.Empty; 
+            string trimRow2 = string.Empty;
+            string trimRow3 = string.Empty; 
+            string trimRow4 = string.Empty; 
+            string trimRow5 = string.Empty; 
+            string trimRow6 = string.Empty; 
+            string trimTotal = string.Empty; 
+            
+            //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
+            char[] myTrim = {'%'};
+            
+            //integer Conversion Fields     
+            int intRow1 = 0;
+            int intRow2 = 0;
+            int intRow3 = 0;
+            int intRow4 = 0;
+            int intRow5 = 0;
+            int intRow6 = 0;
+            int intTotal = 0; 
+            int divideTotal = 0; 
+           
+            //finalTotal = Total cell converted to double.  rowTotal = subTotal from rows.  rowTotaltmp = temp conversion
+            int rowTotal = 0; 
+            int finalTotal = 0;
+  
+            //logs
+            Report.Info("This is the value from ROW 1: " + row1);
+            Report.Info("This is the value from ROW 2: " +  row2);
+            Report.Info("This is the value from the TOTAL FIELD (That should match): " +  total);
+
+//            if(row1.Contains('%', '.')
+            
+			//trim replacement using myTrim
+             trimTotal = total.TrimEnd(myTrim);
+            trimRow1 = row1.TrimEnd(myTrim);
+            trimRow2 = row2.TrimEnd(myTrim); 
+            trimTotal = total.TrimEnd(myTrim);
+            
+            
+            //double conversions
+            intRow1 = Convert.ToInt32(trimRow1); 
+            intRow2 = Convert.ToInt32(trimRow2); 
+            intRow3 = Convert.ToInt32(trimRow3); 
+            intRow4 = Convert.ToInt32(trimRow4); 
+            intRow5 = Convert.ToInt32(trimRow5); 
+            intRow6 = Convert.ToInt32(trimRow6); 
+            intTotal = Convert.ToInt32(trimTotal); 
+            
+            //division
+            rowTotal = intRow1 / intRow2; 
+            divideTotal = rowTotal; 
+            finalTotal = intTotal; 
+            
+            //Compare statement.  Could use a try catch as well
+            if(divideTotal == finalTotal)
+            	{
+            		Report.Success("The cells match"); 
+           		}
+            	else
+           		{
+            		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
+           		}
+            	
+        }
+		
+	public static void RowCount(string ctrlStr)
+		{
+			 
+			Ranorex.WebElement grid = null;
+			bool lowerLevelException = true; 
+			 
+			
+			try
+			{
+				grid = string.Format(ctrlStr.ToString(), "403"); 
+			}
+			
+			catch(Exception e)
+			{
+				lowerLevelException = false;  
+			}
+
+			if(lowerLevelException)
+			{
+			
+			
+			// get all rows in table and store them in a list
+			IList<Ranorex.TrTag> myRows = grid.FindDescendants<Ranorex.TrTag>();  
+			// print out count of rows stored in a list   
+			Report.Log(ReportLevel.Info,"Row Count: ", myRows.Count.ToString());  
+			
+			}
+			
+		}
+        
+		public static void ColCount(string ctrlStr)
+		{
+			Ranorex.WebElement apCtrlStr = null;
+			bool lowerLevelException = true; 
+			
+			try
+			{
+				apCtrlStr = string.Format(ctrlStr.ToString(), "403"); 
+			}
+			
+			catch(Exception e)
+			{
+				lowerLevelException = false; 
+				return; 
+			}
+
+			if(lowerLevelException)
+			{
+				// get all columns in specified row and store them in a list
+				IList<Ranorex.TdTag> myCols = apCtrlStr.FindDescendants<Ranorex.TdTag>();
+			
+				// print out count of columns stored in the list
+				Report.Log(ReportLevel.Info,"Column Count: ", myCols.Count.ToString());
+			}
+	
+		}
+		
+		public static void RowCountInnerText(string ctrlStr)
+		{
+			Ranorex.WebElement apCtrlStr = null;
+			bool lowerLevelException = true; 
+			
+			try
+			{
+				apCtrlStr = string.Format(ctrlStr.ToString(), "403");
+				
+				
+			}
+			
+			catch(Exception e)
+			{
+				lowerLevelException = false; 
+				return; 
+			}
+
+			if(lowerLevelException)
+			{
+			
+			// get all rows in table and store them in a list
+			IList<Ranorex.TrTag> myRows = apCtrlStr.FindDescendants<Ranorex.TrTag>();
+			myRows.Add(apCtrlStr.InnerText.ToString());
+			// print out count of rows stored in a list   
+			Report.Info(myRows.ToString());
+			
+			}
+		}
+		
+		public static void ColCountInnerText(string ctrlStr)
+		{
+			Ranorex.WebElement apCtrlStr = null;
+			
+			
+			try
+			{
+				apCtrlStr = string.Format(ctrlStr.ToString(), "403");
+				
+				
+			}
+			
+			catch(Exception e)
+			{
+				
+				return; 
+			}
+			
+			// get all rows in table and store them in a list
+			IList<Ranorex.TdTag> myCols = apCtrlStr.FindDescendants<Ranorex.TdTag>();
+			myCols.Add(apCtrlStr.InnerText.ToString());
+			// print out count of rows stored in a list   
+			Report.Info(myCols.ToString());
+			
+			
+		}
+		
+		public static void GetParentThTag(string ctrlStr) 
+		{
+			string tagNew = string.Empty; 
+			//returns parent tag for TH tag.  Useful for identifying tables
+			Ranorex.WebElement apCtrlStr = ctrlStr;
+			
+			apCtrlStr = string.Format(ctrlStr.ToString(), "403");
+			
+			try
+			{
+				//apCtrlStr.Element.Parent; 
+				
+			}
+			catch(Exception e)
+			{
+				Report.Info("error"); 
+			}
+			
+		}
+	  	
+		  public static void RowCountGen()
+        {
+         	var rgMasterTable = portalqa.portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+         	string total = string.Empty; 
+
+			// get all rows in table and store them in a list
+         	IList<Ranorex.TrTag> myRows = rgMasterTable.FindDescendants<Ranorex.TrTag>();
+         	
+         	
+			// print out count of rows stored in a list   
+			Report.Log(ReportLevel.Info,"Row Count: ", myRows.Count.ToString()); 
+			 
+			
+	
+			
+			
+			
+		}
+      
+         public static void ColCountGen()
+         {
+         	var rgMasterTable = portalqa.portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+			// get all columns in specified row and store them in a list   
+			IList<Ranorex.TdTag> myCols = rgMasterTable.FindDescendants<Ranorex.TdTag>();  
+			// print out count of columns stored in the list   
+			Report.Log(ReportLevel.Info,"Row Count: ", myCols.Count.ToString());          	
+         }
+         
+         public static void FindSearchRow(string searchArr) 
+         {
+         	Ranorex.WebElement search = null; 
+         	ArrayList rowNumArr = new ArrayList();
+         	ArrayList orderNumArr = new ArrayList(); 
+         	string apCtrlStrArr = null; 
+         	bool found = true; 
+         	int counter = 0;
+         	int timeout = 2000; 
+         	
+         	while(true)
+         	{
+         		counter++;
+         			
+         		//found = Host.Local.TryFindSingle(string.Format(apCtrlStrArr[0], StackPortal.ToString, out search));
+         	}
+         	
+         	if(found)
+         	{
+         		rowNumArr.Add(counter); 
+         	}
+         	else
+         	{
+         		orderNumArr.Add(counter);  
+         	}
+         }
+         
+         public static void CompareText(string inputStrTxt)
+         {
+         	string input = string.Empty;
+         	string facility = string.Empty; 
+         	bool flag = false; 
+         	
+         	input = Clipboard.GetText(); 
+         	
+         	IDataObject clipData = Clipboard.GetDataObject();
+				
+         	if (clipData.GetDataPresent(DataFormats.Text))
+			{
+				input = clipData.GetData(DataFormats.Text).ToString();
+			}
+			else
+			{
+				input = "Could not retrieve data from the clipboard.";
+			}
+								
+         	
+			
+				
+				
+         	
+				
+         	
+//         	
+//         	if(input.Contains(facility))
+//         	{
+//         		//input.Contains(facility); 
+//         		Report.Success("pass"); 
+//         	}
+         }
+         
+         public static void infoForEveryRow()
+         {
+         	 Ranorex.WebElement grid = null;
+         	 Ranorex.WebElement editQA = null;
+         	 Ranorex.WebElement viewQA = null;
+        	 int counter = -1; 
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         Ranorex.WebElement tag = null; 
+	         foreach(Ranorex.TdTag tag2 in myList2)
+	         {
+	         	tag2.MoveTo(); 
+	         	Report.Info(tag2.InnerText);
+	         	Validate.Exists(tag2);
+	         }
+         }
+         
+         public static void RowCol()
+         {
+         	
+         	int myRowTotal = 0;
+         	int totalRow = 0;
+         	
+         	var rgMasterTable = portalqa.portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+         	
+         	// get all rows in table and store them in a list
+         	IList<Ranorex.TrTag> myRows = rgMasterTable.FindDescendants<Ranorex.TrTag>();
+         	
+      	    // get all rows in table and store them in a list
+         	IList<Ranorex.TdTag> myCols = rgMasterTable.FindDescendants<Ranorex.TdTag>(); 
+         	
+         	Report.Log(ReportLevel.Info,"Row Count: ", myRows.Count.ToString());
+         	Report.Log(ReportLevel.Info,"Row Count: ", totalRow.ToString());
+         	 
+         	myRowTotal = Convert.ToInt32(myRows);
+         	totalRow = myRowTotal - 1; 
+         	
+         	Report.Log(ReportLevel.Info,"Row Count: ", myCols.Count.ToString());  
+
+         }
+         
+          public void verifyDescendingHeaders()
+        {
+	         Ranorex.WebElement tag2 = null; 
+	         
+	         var grid = portalqa.portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+	         IList<Ranorex.ThTag> myList = grid.FindDescendants<Ranorex.ThTag>();  
+	         foreach(Ranorex.ThTag tag in myList )  
+         {  
+	         	tag.GetInnerHtml();
+	         	tag2 = tag.InnerText;
+	         	tag2.Click(); 
+         		Delay.Milliseconds(1000);
+         		tag.Click(); 
+         }
+
+        }
+          
+          public void verifyAscendingHeaders()
+        {
+	         Ranorex.WebElement tag2 = null; 
+	         
+	         var grid = portalqa.portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+	         IList<Ranorex.ThTag> myList = grid.FindDescendants<Ranorex.ThTag>();  
+	         foreach(Ranorex.ThTag tag in myList )  
+         {  
+	         	tag.GetInnerHtml();
+	         	tag2 = tag.InnerText;
+	         	tag2.Click(); 
+         	
+         }
+	         
+	         
+	
+        }
+          
+          public static void CheckRequestID(string targStr)
+	         {
+	         	
+	         	checkRequestID = targStr; 
+	         	
+	         	//portalqa.formatted.testcases.AlternateFacilityRequestIDCheck.Instance.Receive(requestID); 
+	         	
+	         }
+          
+          public static void FindTextNumber(string targStr)
+          {
+          	Regex rgx = new Regex("[^0-9]");
+        	Ranorex.WebElement qaCtrl = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(targStr, StackPortal.ToString());
+        	string targStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+        		
+        		//msgListArr = (IList)qaCtrl.Children;
+	        	targStrTmp = qaCtrl.ToString();
+	        	targStr = rgx.Replace(targStrTmp, ""); 
+	        	RequestID = targStr; 
+	        	Report.Info(targStr);
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+        	
+          }
+          
+          public static void SelectList(string apCtrlStr)
+          {
+          	string inTest = null; 
+          	Ranorex.WebElement sol; 
+          	Ranorex.SelectTag box = portalqaRepository.Instance.portal.Preferences.TimezoneSelector;
+          	Ranorex.OptionTag timeMountain = portalqaRepository.Instance.portal.Preferences.MountainTime;
+          	string tmpStr = string.Empty; 
+          	string tmpCtrlStr; 
+          	string itemZ; 
+          	Duration timeout = 10000;
+          	bool found = false; 
+          	
+          	//ArrayList items = new ArrayList(); 
+          	
+          	inTest = string.Format(apCtrlStr.ToString(), StackPortal.ToString());
+          	sol = inTest; 
+          	
+          	IList<Ranorex.WebElement>items1 = sol.FindDescendants<Ranorex.WebElement>();
+
+          	//found = Host.Local.TryFindSingle(string.Format(apCtrlStr[0].ToString(), StackPortal.ToString()), out itemZ);
+         
+          	if (inTest != null)
+          	     {
+          			
+          			items1.Add(inTest);
+          	      	found = true; 
+          	 	 }
+          		
+          		if(items1 != null)
+          		{
+          			
+          			    
+          					box.Focus();
+          					box.Click(); 	
+          					timeMountain.Click(); 
+          			    	tmpStr = timeMountain.InnerText;
+          			    
+          		}
+          		
+          		
+          	
+          }
+          
+          public static void FindTextChar(string targStr)
+          {
+          	Regex rgx = new Regex("[^A-Z]");
+        	Ranorex.WebElement qaCtrl = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(targStr, StackPortal.ToString());
+        	string targStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+	        	msgListArr = (IList)qaCtrl.Children;
+	        	targStrTmp = msgListArr[0].ToString();
+	        	targStr = rgx.Replace(targStrTmp, ""); 
+	        	Report.Info(targStr);
+	        	IList finalTgtSt = null; 
+	        	finalTgtSt.Add(targStr); 
+	        	//portalqa.formatted.code.utility.TargetString(targStr.ToString());
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+          }
+          
+          
+          public static void SetLogOnCriteria(string logOnNameStr, string logOnPasswordStr)
+          {
+          	var repo = portalqaRepository.Instance;
+			UserNameStr = logOnNameStr;
+			PasswordStr = logOnPasswordStr;
+			
+			//Report.Log(ReportLevel.Info, "Keyboard", "(Optional Action)\r\nInvoking PerformClick() on item 'portal.buttons.Worklist'.", new RecordItemIndex(6));
+            //Report.Log(ReportLevel.Info, "Invoke Action", "(Optional Action)\r\nInvoking PerformClick() on item 'portalqaRepository.Instance.OC.Username'.", portalqaRepository.Instance.OC.UsernameInfo);
+			Delay.Milliseconds(8000);
+			//portalqaRepository.Instance.OC2.Username.PressKeys(UserNameStr);
+			portalqaRepository.Instance.OCLOGIN.Username.PressKeys(UserNameStr); 
+            Delay.Milliseconds(0);
+            
+            Report.Log(ReportLevel.Info, "Keyboard", "Key sequence 'PasswordStr' with focus on 'OC.password'.", new RecordItemIndex(7));
+            portalqaRepository.Instance.OC.password.PressKeys(PasswordStr + "{Return}");
+            Delay.Milliseconds(5000);
+            
+           
+     
+          }
+          
+          public static void SetPortalLogOnCriteria(string logOnNameStr, string logOnPasswordStr)
+		{
+			var repo = portalqaRepository.Instance;
+          	UserNameStr = logOnNameStr;
+			PasswordStr = logOnPasswordStr;
+			
+			
+			repo.portal.login.username.PressKeys(UserNameStr);
+			repo.portal.login.password.PressKeys(PasswordStr); 
+
+			//utility.HandlePop();
+			//PortalResultsLogInNamesArr[0] = validUserNameStr;
+			
+			 
+		}
+          
+          public static void Logins(string logOnNameStr, string logOnPasswordStr)
+		{
+          	string[] logins = {"/dom[@domain='devvprtweb{0}']//input[#'Content_tbUserName']", "/dom[@domain='devvprtweb{0}']//input[#'Content_tbPassword']"};
+          	
+          	var repo = portalqaRepository.Instance;
+          	UserNameStr = logOnNameStr;
+			PasswordStr = logOnPasswordStr;
+			
+			portalqa.formatted.code.utility.Type(logins[0].ToString());
+			//repo.portal.login.username.PressKeys(UserNameStr);
+			repo.portal.login.password.PressKeys(PasswordStr); 
+			repo.portal.login.SubmitButton.Click();
+			
+			
+			if(repo.passwordpopup.SelfInfo.Exists())
+			{
+				utility.HandlePop(); 
+			}
+			
+			//portalqa.formatted.code.utility.Type(logins[0].ToString());
+			
+			//utility.HandlePop();
+			//PortalResultsLogInNamesArr[0] = validUserNameStr;
+			
+			 
+		}
+          
+          public static void HandlePop()
+        {
+          	var repo = portalqaRepository.Instance;
+        	var pop = repo.passwordpopup;
+        	//var okay = repo.passwordpopup.okay;
+        
+        		if(pop.Self.Visible)
+        		{
+        			string[] apCtrlStrArr = {"/dom[@domain='devvprtweb[0-9]']//input[#'Content_tbCurrentPassword']"};
+	        		string[] apCtrlStrArr2 = {"/dom[@domain='devvprtweb[0-9]']//input[#'txtAnswer1']"};
+	        		string targInputStr = "virtual1";
+	        		string targInputStr2 = "test"; 
+        			
+        			repo.passwordpopup.okay.Click();
+        			
+        			repo.portal.login.password.PressKeys("{LControlKey down}{Akey}{LControlKey up}{Delete}");
+	        		repo.portal.login.password.PressKeys("virtual1");
+	        		repo.portal.login.SubmitButton.Click();
+	        		
+	        		//repo.portal.login.PasswordPopUpPassword.PressKeys("virtual1");
+	        		//repo.portal.login.PasswordPopUp.PressKeys("{tab}virtual1");
+	        		//repo.portal.login.PasswordPopUpTab.PressKeys("{tab}virtual1");
+	        		repo.portal.login.PasswordPopUpTab.MoveTo();
+//	        		portalqa.formatted.code.TestResultsCode.InputStrings(apCtrlStrArr[0].ToString(), targInputStr.ToString());
+					Keyboard.Press("{Tab}{Tab}");
+					Keyboard.Press("virtual1");
+	        		
+	        		repo.portal.login.PasswordPopUpNewPassword.PressKeys("password1");
+	        		repo.portal.login.PasswordPopUpConfirmPassword.PressKeys("password1");
+	        		repo.portal.login.PasswordPopUpSubmit.Click();
+	        		
+	        		Delay.Duration(3000);
+        			
+		        		repo.portal.login.email.PressKeys("test@test.com");
+	        			repo.portal.login.ConfirmEmail.PressKeys("test@test.com");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("{Down}");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("test");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("{Down}");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("test");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("{Down}");
+	        			Keyboard.Press("{Tab}");
+	        			Keyboard.Press("test");
+	        			
+	        			//portalqa.formatted.code.TestResultsCode.InputStrings(targInputStr2.ToString(), apCtrlStrArr2[0].ToString());
+	//        			repo.portal.login.question1.PressKeys("test");
+	//        			repo.portal.login.question2.PressKeys("test");
+	//        			repo.portal.login.question3.PressKeys("test");
+	        			repo.portal.login.submit.Click();
+	        			repo.portal.login.PasswordPopUpFinalOkay.Click();
+	        			Delay.Duration(2000); 
+	        		
+
+	        	
+        		}
+        		
+        		else
+        		{
+        			Report.Success("pass"); 
+        		}
+        		
+        		
+        }
+          
+          public static void Facilitymatch(string apCtrlStr, string facility1, string facility2)
+          {
+          	string hdrStr = apCtrlStr; 
+          	string f1 = facility1; 
+          	string f2 = facility2; 
+          	 
+          	
+//          	hdrStr = string.Format(apCtrlStr.ToString(), StackPortal.ToString());
+//          	f1 = string.Format(facility1.ToString(), StackPortal.ToString());
+//          	f2 = string.Format(facility1.ToString(), StackPortal.ToString());
+          	
+          	while(hdrStr != null)
+          	{
+          		if(hdrStr.Contains(f1) && hdrStr.Contains(f2) )
+          		{
+          			Report.Success("contains both"); 
+          			break; 
+          		}
+          		else
+          		{
+          			Report.Failure("String is not building, does not contain multiple facilities, or other error.");
+          			break; 
+          		}
+          	}
+          		
+          	
+   
+    		}
+          
+          public static void CentralTimeCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr; 
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	 
+        	 
+        	
+        	 
+        	 
+        	 //selectCtrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'Content_MainHeaderCtrl_MainHeaderCtrl_{1}']", StackPortal.ToString(), ctrlStrArr[indexx].ToString());
+        	  
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+
+	         
+	         
+//	         foreach(Ranorex.TdTag tag in myList2 )
+         	 {  
+
+//	         		myList2[1].MoveTo(); 
+//	         		myList2[1].PerformClick();
+	         		
+	         	maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         		for (int j = 0; j < maxLoop; j++)
+	         		{
+
+//	         			indexxTmp = indexx / maxLoop;
+				         
+				        indexx += offSet;
+				         			
+				        myList2[indexx].MoveTo();
+				        
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setCentralTime(); 
+							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); ;
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+	         		}}}
+				        
+	         
+	         
+          
+          public static void DateFinalFirstRow2()
+        {
+        	
+        	
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr = string.Empty;
+        	 int differenceTot = 0; 
+        	 
+        	 var based = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var compare = System.DateTime.Parse("9/18/2012 2:45:44 PM");;
+        	 var difference = based - compare; 
+        	 //Ranorex.DateTime = now - date; 
+        	  
+	         				 
+	         				based = System.DateTime.Parse(dateStr);
+	         				difference = based - compare; 
+	         				differenceStr = difference.ToString();
+	        				differenceTot = Convert.ToInt32(difference.TotalDays);
+	         				differenceTotStr = differenceTot.ToString(); 
+	         				Console.WriteLine("There are {0:#.##} days between {1} and {2}.", difference.TotalDays, based, compare);
+	         				Report.Info(differenceStr); 
+	         				Report.Info(differenceTotStr); 
+
+			         	
+	         }
+	         			
+	         			
+	         			
+	         		
+	         
+          
+          public static void dateCheck(string timeArrivedStr, string compareDateStr, string tmpStr)
+          {
+          	//string compareDateStr = string.Empty; 
+          	string differenceStr = string.Empty; 
+          	string differenceTotStr = string.Empty; 
+          	int differenceTot = 0; 
+          	string[] timeZones = {"Central Time ", "Mountain Time "}; 
+          	string[] zones = {"0", "1", "2", "3", "4"};
+          	var baseDate = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+          	var compareDate = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+          	var difference = baseDate - compareDate;  
+          	bool rtnStatus = false; 
+          	
+          	if(rtnStatus == false)
+	          	
+          		try
+	          	{
+	          		baseDate = System.DateTime.Parse(timeArrivedStr);
+	          		compareDate = System.DateTime.Parse(compareDateStr); 
+	          		Report.Info("Pased everything correctly"); 
+	          		rtnStatus = true; 
+	          	}
+	          	
+          		catch(Exception e)
+	          	{
+	          		Report.Failure("failure on parse"); 
+	          	}
+          	
+	          		if(rtnStatus == true)
+	          		{
+	          			difference = baseDate - compareDate;  
+	          			differenceTot = Convert.ToInt32(difference.TotalHours);
+	         			differenceTotStr = differenceTot.ToString(); 
+	          			differenceStr = difference.ToString();
+	          			Report.Info("Calculation is equal to: " + differenceStr); 
+	          			
+	          			if(tmpStr == timeZones[0])
+	          			{
+		          				//Central Time Zone Check
+		          			if(differenceTotStr == "0" && tmpStr == timeZones[0])
+		          			{
+		          				
+		          				Report.Success("Compares to Central Time"); 
+	
+		          			} 
+		          			else
+		          			{
+		          				Report.Failure("did not match CENTRAL timezone");
+		          			}
+	          			}
+	          			
+	          			if(tmpStr == timeZones[1])
+	          			{
+	          				//Mountain Time Zone Check
+		          			if(differenceTotStr == zones[1] && tmpStr == timeZones[1])
+		          			{
+		          				
+		          				Report.Success("Compares to Mountain Time"); 
+	
+		          			} 
+		          			else
+		          			{
+		          				Report.Failure("did not match Mountain timezone");
+		          			}
+	          			}
+	          			
+	          			
+	          			
+	          			
+	          		
+	          		}
+	          		
+	          	
+	          	
+          	
+          }
+          
+          public static void SetRADLogOnCriteria(string logOnNameStr, string logOnPasswordStr)
+          {
+          	var repo = portalqaRepository.Instance;
+//            var install = repo.OCInstall.Install;
+//            var no = repo.VoiceDictation.No;
+//            var button = repo.Login.button;
+
+          	UserNameStr = logOnNameStr;
+			PasswordStr = logOnPasswordStr;
+          	
+			portalqaRepository.Instance.OC.Username.PressKeys(UserNameStr);
+			
+			Report.Log(ReportLevel.Info, "Keyboard", "Key sequence 'PasswordStr' with focus on 'OC.password'.", new RecordItemIndex(7));
+            portalqaRepository.Instance.OC.password.PressKeys("{Return}");
+            Delay.Milliseconds(0);
+            repo.Login.button.Click(); 
+            
+            repo.OCInstall.Install.Click(); 
+            Delay.Duration(22000);
+            
+//            repo.OCInstall.Install.Click();
+//            Delay.Duration(22000);
+            
+           Delay.Duration(10000);
+           repo.VoiceDictation.No.Click();
+           
+           repo.Warning.Self.PressKeys("{Tab down}{Return}");
+           utility.ClickButton(btnCntrlStr2[0].ToString()); 
+
+            
+          }
+          
+          
+          
+          public static void SetAdminLogOnCriteria(string logOnNameStr, string logOnPasswordStr)
+          {
+          	var repo = portalqaRepository.Instance;
+          	var username = repo.WindowsSecurity.Username; 
+          	var password = repo.WindowsSecurity.Password;
+			var buttonOK = repo.WindowsSecurity.ButtonOkay;
+			 
+
+			UserNameStr = logOnNameStr;
+			PasswordStr = logOnPasswordStr;
+			
+			Report.Log(ReportLevel.Info, "Keyboard", "Key sequence 'UserNameStr' with focus on 'OC.Username'.", new RecordItemIndex(6));
+            username.PressKeys(UserNameStr);
+            Delay.Milliseconds(0);
+            
+
+            Report.Log(ReportLevel.Info, "Keyboard", "Key sequence 'PasswordStr' with focus on 'OC.password'.", new RecordItemIndex(7));
+            password.PressKeys(PasswordStr + "{Return}");
+            //buttonOK.Press(); 
+            Delay.Milliseconds(0);
+            
+            
+
+          }
+            public static bool Rmdir(string command)
+		{
+		        
+		     try
+		     {
+		         // create the ProcessStartInfo using "cmd" as the program to be run,
+		         // and "/c " as the parameters.
+		         // Incidentally, /c tells cmd that we want it to execute the command that follows,
+		         // and then exit.
+			    System.Diagnostics.ProcessStartInfo procStartInfo =
+			        new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
+			
+			    procStartInfo.RedirectStandardOutput = true;
+			    procStartInfo.UseShellExecute = false;
+			    procStartInfo.CreateNoWindow = true;
+			    //   procStartInfo.UserName = "brad.cromie";
+			   
+			    // Now we create a process, assign its ProcessStartInfo and start it
+			    System.Diagnostics.Process proc = new System.Diagnostics.Process();
+			    proc.StartInfo = procStartInfo;
+			    proc.Start();
+			    Thread.Sleep(2000);
+			    proc.Kill();
+			    
+			    
+			    return true;
+		    
+		   
+		      }
+		     catch (Exception objException)
+		      {
+		      	
+		      	
+		      return false;
+		      // Log the exception
+		      }
+            }
+		     
+             public static bool GetUninstallCommandFor(string publisherDisplayName)
+        {
+            RegistryKey localMachine = Registry.Users;
+            string productsRoot = @"S-1-5-21-3864201282-3261486089-2950030240-24260\Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            RegistryKey products = localMachine.OpenSubKey(productsRoot);
+            string[] productFolders = products.GetSubKeyNames();
+
+            foreach (string p in productFolders)
+            {
+                RegistryKey installProperties = products.OpenSubKey(p);
+
+                    string displayName = (string)installProperties.GetValue("Publisher");
+                    if ((displayName != null) && (displayName.Contains(publisherDisplayName)))
+                    {
+                        string uninstallCommand = (string)installProperties.GetValue("UninstallString");
+                        ExecuteCommandSync (uninstallCommand);
+                        
+                    }
+            }
+          
+        
+             return true;
+            
+        }
+             
+         public static bool ExecuteCommandSync(string command)
+		{
+		        
+		     try
+		     {
+		         // create the ProcessStartInfo using "cmd" as the program to be run,
+		         // and "/c " as the parameters.
+		         // Incidentally, /c tells cmd that we want it to execute the command that follows,
+		         // and then exit.
+			    System.Diagnostics.ProcessStartInfo procStartInfo =
+			        new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
+			
+			    procStartInfo.RedirectStandardOutput = true;
+			    procStartInfo.UseShellExecute = false;
+			    procStartInfo.CreateNoWindow = true;
+			    //   procStartInfo.UserName = "brad.cromie";
+			   
+			    // Now we create a process, assign its ProcessStartInfo and start it
+			    System.Diagnostics.Process proc = new System.Diagnostics.Process();
+			    proc.StartInfo = procStartInfo;
+			    proc.Start();
+			    Thread.Sleep(2000);
+			    portalqa.formatted.code.UserCodeModule1.Uninstall_Okbutton();
+			    proc.Kill();
+			    Thread.Sleep(15000);
+			    
+			    return true;
+		    
+		   
+		      }
+		      catch (Exception objException)
+		      {
+		      	
+		      	
+		      return false;
+		      // Log the exception
+		      }
+		}
+		 
+          
+          public static void SetOCPortalStack(string stack)
+          {
+          	string stackTmp = null; 
+          	
+          	if(stack == "403")
+          	{
+          		portalqa.formatted.portal.OC.StartOC403.Start(); 
+          	}
+          	
+          	if(stack == "405")
+          	{
+          		portalqa.formatted.portal.OC.StartOC405.Start(); 
+          	}
+          }
+          
+           public static void SetRADPortalStack(string stack)
+          {
+          	string stackTmp = null; 
+          	
+          	if(stack == "403")
+          	{
+          		portalqa.formatted.portal.Rad.StartRad403.Start(); 
+          	}
+          	
+          	if(stack == "405")
+          	{
+          		portalqa.formatted.portal.Rad.StartRad405.Start(); 
+          	}
+          }
+          
+          public static void SetAdminStack(string stack)
+          {
+          	string stackTmp = null; 
+          	
+          	if(stack == "403")
+          	{
+          		portalqa.formatted.risadmin.Start403.Start(); 
+          	}
+          	
+          	if(stack == "405")
+          	{
+          		portalqa.formatted.risadmin.Start405.Start(); 
+          	}
+          }
+          
+           public static void ClickButton(string btnStr)
+          {
+          	
+        	Ranorex.WebElement qaCtrl = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(btnStr, StackPortal.ToString());
+        	string btnStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+	        	msgListArr = (IList)qaCtrl.Children;
+	        	//btnStrTmp = msgListArr[0].ToString();
+	        	//btnStr = btnStrTmp; 
+	        	//recordingname.start(); 
+	        	Ranorex.Mouse.MoveTo(apCtrlStr);
+	        	Ranorex.Mouse.Click();
+	        	
+	        	Report.Info("This button was clicked: ", apCtrlStr);
+	        	 
+	        	//portalqa.formatted.code.utility.TargetString(targStr.ToString());
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+          }
+           
+            public static void Validation(string btnStr)
+          {
+          	
+        	Ranorex.WebElement qaCtrl = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(btnStr, StackPortal.ToString());
+        	string btnStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+	        	msgListArr = (IList)qaCtrl.Children;
+	        	//btnStrTmp = msgListArr[0].ToString();
+	        	//btnStr = btnStrTmp; 
+	        	//recordingname.start(); 
+	        	Ranorex.Mouse.MoveTo(apCtrlStr);
+	        	Validate.Exists(apCtrlStr); 
+	        
+	        	
+	        	Report.Info("This value exists: ", apCtrlStr);
+	        	 
+	        	//portalqa.formatted.code.utility.TargetString(targStr.ToString());
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+          }
+            
+             public static void Type(string btnStr)
+          {
+          	
+        	Ranorex.WebElement qaCtrl = null;
+        	Ranorex.WebElement userField = null; 
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(btnStr, StackPortal.ToString());
+        	string btnStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+	        	msgListArr = (IList)qaCtrl.Children;
+	        	//btnStrTmp = msgListArr[0].ToString();
+	        	//btnStr = btnStrTmp; 
+	        	//recordingname.start(); 
+	        	Ranorex.Mouse.MoveTo(apCtrlStr);
+	        	userField = apCtrlStr; 
+	        	userField.PressKeys(UserNameStr);
+	        	
+	        	Report.Info("This value exists: ", apCtrlStr);
+	        	 
+	        	//portalqa.formatted.code.utility.TargetString(targStr.ToString());
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+          }
+          
+          
+        
+          /*public static bool TargetString(string targTxtStr)
+          {
+          	bool rtnStatus = false; 
+          	string iListitemStr = string.Empty;
+          	IList iListArr = null;
+          	iListArr.Add(targTxtStr); 
+     
+          	for(int i = 0; i <= iListArr.Count - 1; i++)
+          	{
+          		iListitemStr = iListArr[i].ToString(); 
+          		
+          		if(iListitemStr.Contains(targTxtStr))
+          		{
+          			rtnStatus = true; 
+          			break; 
+          		}
+          		
+          		
+          		
+          		
+          	}
+          	
+          }*/
+           
+          
+          public static void VerifyLimit(string cell, int limitz)
+        {
+           		
+           	 
+            string cellString = string.Empty; 
+            int cellInt = cell.Length; 
+            	
+            	
+            	
+            	Report.Log(ReportLevel.Info, "Get Value", "Getting attribute 'InnerText' from item 'portal.QA.PhoneTextField' and assigning its value to variable 'phoneInnerText'.", portalqaRepository.Instance.portal.QA.PhoneTextFieldInfo);
+
+            	cellString = cellInt.ToString(); 
+            	
+            	if(cellInt >= limitz)
+            	
+	            	{
+	            		Report.Failure("Fail.  Limit does not seem to match"); 
+	            	}
+            		
+            	else
+            	{
+            		Report.Success("Pass.  Limit seems to match the requirements"); 
+            	}
+            	
+            	
+            	Report.Info(cellString);
+            	
+            	
+            	
+        }
+          
+           
+         
+    }
+}
+
+    
+
+
+//modified and created by BF
+
+public static void CentralTimeCompare()
         {
         	
         	 int indexx = -8;
