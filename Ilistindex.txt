@@ -51,8 +51,11 @@ namespace portalqa.formatted.code
 		public static string Procedure = string.Empty;
 		public static string ArrivedCentralTime = string.Empty;
 		public static string ArrivedMountainTime = string.Empty;
+		public static string DateAttached = string.Empty; 
 		public static ArrayList CentralTimeArray = new ArrayList(); 
 		public static ArrayList MountainTimeArray = new ArrayList(); 
+		public static ArrayList CentralTimeQACreatedArray = new ArrayList();
+		public static ArrayList MountainTimeQACreatedArray = new ArrayList(); 
 		
         public utility()
         {
@@ -425,6 +428,16 @@ namespace portalqa.formatted.code
 		public static void SetMRN(string mrn)
 		{
 			MRN = mrn; 
+		}
+		
+		public static void SetDateAttached(string dateAttached)
+		{
+			 DateAttached = dateAttached; 
+		}
+		
+		public static string getDateAttached()
+		{
+			return DateAttached; 
 		}
 		
 		public static void SetPatientName(string patientName)
@@ -1687,7 +1700,7 @@ namespace portalqa.formatted.code
 				         }}
            
             public static void MountainTimeCompare()
-        {
+       	    {
         	
         	 int indexx = -8;
         	 int indexxTmp = 0; 
@@ -1775,7 +1788,663 @@ namespace portalqa.formatted.code
 				        
 				         }}
 				        
+        public static void CentralTimeQACreatedCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string qaCreatedDate;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
 	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.CentralTimeAdjust(); 
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < maxLoop; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        qaCreatedDate = portalqaRepository.Instance.portal.Order_Details.QACreatedDate.Element.GetAttributeValueText("InnerText");
+							        timeArray.Add(qaCreatedDate); 
+							        CentralTimeArray = timeArray; 
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				         }}
+            
+            public static void MountainTimeQACreatedCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string qaCreatedDate;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.MountainTimeAdjust(); 
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < maxLoop; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        qaCreatedDate = portalqaRepository.Instance.portal.Order_Details.QACreatedDate.Element.GetAttributeValueText("InnerText");
+							        timeArray.Add(qaCreatedDate); 
+							        MountainTimeArray = timeArray; 
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				         }}
+	         
+        public static void CentralTimeQAResolvedCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string qaResolvedDate;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.CentralTimeAdjust(); 
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < maxLoop; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        qaResolvedDate = portalqaRepository.Instance.portal.Order_Details.QAResolved.Element.GetAttributeValueText("InnerText");
+							        timeArray.Add(qaResolvedDate); 
+							        CentralTimeArray = timeArray; 
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				         }}
+        	
+        	
+    
+				
+             
+               public static void MountainTimeQAResolvedCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string qaResolvedDate;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.MountainTimeAdjust();
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < maxLoop; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        qaResolvedDate = portalqaRepository.Instance.portal.Order_Details.QAResolved.Element.GetAttributeValueText("InnerText");
+							        timeArray.Add(qaResolvedDate); 
+							        MountainTimeArray = timeArray; 
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				         }}
+	    public static void CentralTimeAttachCompareLong()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string dateAttached;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 var window = portalqaRepository.Instance.portal; 
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.CentralTimeAdjust(); 
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < maxLoop; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+			
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000); 
+							        dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.Element.GetAttributeValueText("InnerText");
+							        if(dateAttached == null)
+							        {
+							        	break; 
+							        }
+							        else
+							        {
+							        timeArray.Add(dateAttached); 
+							        CentralTimeArray = timeArray; 
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							        }
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+						
+				        
+				         }}
+	    
+	     public static void CentralTimeAttachCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string dateAttached;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.WebDocument foundPage = portalqaRepository.Instance.portal.Self;
+        	 //bool found = portalqaRepository.Instance.portal.Order_Details.AttachmentsZero;
+        	 Ranorex.SpanTag closeSubmitResults; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 
+        	 var window = portalqaRepository.Instance.portal;
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.CentralTimeAdjust(); 
+	         
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 1; j < maxLoop; j ++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+					    if(foundPage.Visible)
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+									portalqa.portalqaRepository.Instance.portal.Self.PressKeys("{Down}{Down}{Down}{Down}");
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000);
+							        
+							        
+							        Host.Local.TryFindSingle(portalqaRepository.Instance.portal.Order_Details.FirstRow, out found); 
+							        if(portalqaRepository.Instance.portal.Order_Details.DateAttached.Visible)
+							        {
+							        	 dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.InnerText;	
+							        	//timeArrivedCompare2 = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							       		 timeArray.Add(dateAttached); 
+							        	CentralTimeArray = timeArray;
+							        }
+							        else
+							        {
+							       
+							        
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							      
+							        
+							        
+							        }
+	        				}
+				           
+				        }
+				        else
+				        {
+				        	Report.Info("old catch"); 
+				        	portalqaRepository.Instance.portal.Order_Details.close2.Click();  
+				        }
+				        
+				         }}
+	    
+	    public static void MountainTimeAttachCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int indexxTmp = 0; 
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int butntonCounter = 0; 
+        	 int buttonCount = 02; 
+        	 int buttonCount1 = 00; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string differenceTotStr; 
+        	 string dateStr;
+        	 string cntrlStr;
+        	 string dateAttached;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 string[] timeStrArray; 
+        	 int differenceTot = 0; 
+        	 Ranorex.SpanTag closeSubmitResults; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 
+        	 var window = portalqaRepository.Instance.portal;
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.MountainTimeAdjust(); 
+	
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 0; j < 1; j++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+				        try
+				        {
+					        buttonIndexx += buttonCount;
+					        buttonCounter = buttonIndexx.ToString(); 
+	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					//buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
+							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+									
+							        portalqa.portalqaRepository.Instance.portal.Self.PressKeys("{Down}{Down}{Down}{Down}");
+							        Ranorex.Mouse.Click(cntrlStr);
+							        Ranorex.Delay.Milliseconds(3000);
+							        
+							        dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.InnerText;
+							        //timeArrivedCompare2 = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        timeArray.Add(dateAttached); 
+							        MountainTimeArray = timeArray;
+							        
+							       	
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
+//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
+							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
+							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							    
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				         }}
 	         
           
           public static void DateFinalFirstRow2()
@@ -1884,7 +2553,7 @@ namespace portalqa.formatted.code
 	          	
           }
           
-          public static void DateArrayCheck()
+           public static void DateArrayCheck()
         {
             ArrayList extract = new ArrayList();
             string centralDate = string.Empty; 
@@ -1898,18 +2567,22 @@ namespace portalqa.formatted.code
           	var compareDate = System.DateTime.Parse("9/18/2012 2:45:44 PM");
           	var difference = baseDate - compareDate;  
           	bool rtnStatus = false; 
-            
+          	 
             for (int i = 0; i < CentralTimeArray.Count; i++)
             {
                 centralDate = (string)CentralTimeArray[i];
 
-                for (int j = 0; j < MountainTimeArray.Count; j++)
-                {
-                	mountainDate = (String)MountainTimeArray[j]; 
+                //for (int j = 0; j < MountainTimeArray.Count; j++)
+                //{
+                mountainDate = (String)MountainTimeArray[i]; 
                 	
-                	 if(rtnStatus == false)
+                if(CentralTimeArray.Count == MountainTimeArray.Count)
+                {
 	          	
-	          		try
+                	if(CentralTimeArray[i] != null)
+                	{
+                		
+                	try
 		          	{
 		          		baseDate = System.DateTime.Parse(centralDate);
 		          		compareDate = System.DateTime.Parse(mountainDate); 
@@ -1944,13 +2617,12 @@ namespace portalqa.formatted.code
 		          			
 		          			
 		          		}
-                }
-                
+                }}
+                //}
+            }}
                
                 
-        }
-          
-       }
+        
           public static void SetRADLogOnCriteria(string logOnNameStr, string logOnPasswordStr)
           {
           	var repo = portalqaRepository.Instance;
@@ -2175,6 +2847,36 @@ namespace portalqa.formatted.code
 	        	//recordingname.start(); 
 	        	Ranorex.Mouse.MoveTo(apCtrlStr);
 	        	Ranorex.Mouse.Click();
+	        	
+	        	Report.Info("This button was clicked: ", apCtrlStr);
+	        	 
+	        	//portalqa.formatted.code.utility.TargetString(targStr.ToString());
+        	}
+        	else
+        	{
+        		Report.Info("Can not build string/dialog"); 
+        	}
+        	
+          }
+           
+             public static void DoubleClickButton(string btnStr)
+          {
+          	
+        	Ranorex.WebElement qaCtrl = null;
+        	Duration timeout = 15000;
+        	IList msgListArr = null;
+        	string apCtrlStr = string.Format(btnStr, StackPortal.ToString());
+        	string btnStrTmp = string.Empty;
+        	bool found = Host.Local.TryFindSingle(apCtrlStr.ToString(), timeout, out qaCtrl);
+        	
+        	if(found)
+        	{
+	        	msgListArr = (IList)qaCtrl.Children;
+	        	//btnStrTmp = msgListArr[0].ToString();
+	        	//btnStr = btnStrTmp; 
+	        	//recordingname.start(); 
+	        	Ranorex.Mouse.MoveTo(apCtrlStr);
+	        	Ranorex.Mouse.DoubleClick();
 	        	
 	        	Report.Info("This button was clicked: ", apCtrlStr);
 	        	 
