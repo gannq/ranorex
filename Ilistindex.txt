@@ -18,6 +18,8 @@ using System.Threading;
 using WinForms = System.Windows.Forms;
 using Microsoft.Win32;
 using System.Windows.Forms; 
+using System.Globalization; 
+
 
 
 using Ranorex;
@@ -52,6 +54,7 @@ namespace portalqa.formatted.code
 		public static string ArrivedCentralTime = string.Empty;
 		public static string ArrivedMountainTime = string.Empty;
 		public static string DateAttached = string.Empty; 
+		public static int CompletedQA;
 		public static ArrayList CentralTimeArray = new ArrayList(); 
 		public static ArrayList MountainTimeArray = new ArrayList(); 
 		public static ArrayList CentralTimeQACreatedArray = new ArrayList();
@@ -173,6 +176,44 @@ namespace portalqa.formatted.code
             		Report.Failure("The cells DO NOT match.  Calculation may be wrong"); 
            		}
             	
+        }
+		
+		public static void OpenExcel()
+		{
+			
+        	Ranorex.DivTag export = portalqaRepository.Instance.portal.QAReports.ExportExcel;
+        	//Ranorex.WebElement export = "/dom[@domain='devvprtweb407']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00__0']";
+        	//Ranorex.DivTag export = "//div[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid']";
+        	ArrayList btnArr = new ArrayList();
+        	Duration timeout = 30000; 
+        	Ranorex.SpanTag btn2;
+        	IList<Ranorex.SpanTag> myList = export.FindDescendants<Ranorex.SpanTag>();
+        	//btnArr.Add(btnStr); 
+        	
+        	foreach(Ranorex.SpanTag tag in myList)
+        	{
+        		if(tag.InnerText.Contains("Export To Excel"))
+        		   {
+	        		   	tag.Click();
+	        		   	
+	        		   	while(portalqaRepository.Instance.Download.Self.Visible || portalqaRepository.Instance.ExcelTools.Self.Visible == true)
+	        		   	{
+	        		   		portalqaRepository.Instance.Download.open.Click(Location.LowerCenter);
+	        		   		portalqaRepository.Instance.ExcelTools.ExcelYes.Click(); 
+	        		   		break; 
+	        		   		//repo.Download.SelfInfo.WaitForNotExists(120000);
+	        		   	}
+	        		   	
+	        		   	/*while(repo.ExcelTools.Self.Visible == true)
+	        		   	{
+	        		   		repo.ExcelTools.ExcelYes.Click(); 
+	        		   		//repo.ExcelTools.ExcelYes.PressKeys("{Return}"); 
+	        		   		//repo.ExcelTools.SelfInfo.WaitForNotExists(120000);
+	        		   	}*/
+        		}
+	        	
+        	}
+        
         }
 		
 		public static void QATemplate(string requestID)
@@ -488,7 +529,7 @@ namespace portalqa.formatted.code
 			
 				if (indexx > -1)
 				{ 
-					selectCtrlStr = string.Format("/dom[@domain='devvprtweb{0}']//div[#'ctl00_ctl00_Content_RadTabStrip1']/div/ul/li[{2}]/a/span/span/span[@innertext='{1}']", StackPortal.ToString(), headerCtrlStrArr[indexx].ToString(), ctrlStrArr[indexx].ToString());
+					selectCtrlStr = string.Format("/dom[@domain='devvprtweb{0}']//div[@id~'(?i:RadTabStrip1)']/div/ul/li[{2}]/a/span/span/span[@innertext='{1}']", StackPortal.ToString(), headerCtrlStrArr[indexx].ToString(), ctrlStrArr[indexx].ToString());
 					Ranorex.WebElement resultsHeaderCtrl = selectCtrlStr;
 					resultsHeaderCtrl.MoveTo();
 					resultsHeaderCtrl.PerformClick();
@@ -725,7 +766,7 @@ namespace portalqa.formatted.code
 	
 		public static void CountCell(string row1, string row2, string total)
         {       
-            //trims
+			//trims
             string trimRow1 = string.Empty; 
             string trimRow2 = string.Empty;
             string trimRow3 = string.Empty; 
@@ -793,10 +834,12 @@ namespace portalqa.formatted.code
 		
 		 public static void CountDouble(string row1, string row2, string total)
         {
-            //trims
+		 	
+		 	//trims
             string trimRow1 = string.Empty; 
             string trimRow2 = string.Empty;
             string trimTotal = string.Empty; 
+            
             
             //Deals with any foreign characters in cells.  Also could use regex.replace().  Could be extended with {'%', '.', ',',}
             char[] myTrim = {'%'};
@@ -2247,15 +2290,12 @@ namespace portalqa.formatted.code
         {
         	
         	 int indexx = -8;
-        	 int indexxTmp = 0; 
         	 int offSet = 11;
         	 int offSet2 = 8; 
         	 int maxLoop = 0; 
         	 int multi = indexx + offSet2 - 1; 
         	 int buttonIndexx = 02; 
-        	 int butntonCounter = 0; 
         	 int buttonCount = 02; 
-        	 int buttonCount1 = 00; 
         	 string buttonCounter = string.Empty;
         	 string buttonCounter1 = string.Empty; 
         	 string found = string.Empty;
@@ -2264,22 +2304,19 @@ namespace portalqa.formatted.code
         	 string[] textStrArr3 = {};
         	 string tmpStr = string.Empty;
         	 string differenceStr = string.Empty; 
-        	 string differenceTotStr; 
-        	 string dateStr;
+        	 string dateAttached; 
         	 string cntrlStr;
-        	 string dateAttached;
         	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
         	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
         	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
         	 ArrayList timeArray = new ArrayList(); 
-        	 string[] timeStrArray; 
-        	 int differenceTot = 0; 
         	 Ranorex.WebDocument foundPage = portalqaRepository.Instance.portal.Self;
         	 //bool found = portalqaRepository.Instance.portal.Order_Details.AttachmentsZero;
-        	 Ranorex.SpanTag closeSubmitResults; 
+        	 bool lowerLevelFlag = false; 
         	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
         	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
-        	 
+        	 Ranorex.TdTag isAttached = null; 
+        	 Duration timeout = 3000; 
         	 var window = portalqaRepository.Instance.portal;
         	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
         	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
@@ -2303,54 +2340,281 @@ namespace portalqa.formatted.code
 				indexx += offSet; 
 				myList2[indexx].MoveTo();
 
-					    if(foundPage.Visible)
+					    try
 				        {
 					        buttonIndexx += buttonCount;
-					        buttonCounter = buttonIndexx.ToString(); 
-	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
-	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+					        
+					        if(buttonIndexx < 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+					        }
+					        
+					        if(buttonIndexx >= 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter; 
+					        }
+					        
 	        				
 	        				if(buttonIndexx > 0)
 	        				{
-	        					 //buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
-							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
-									portalqa.portalqaRepository.Instance.portal.Self.PressKeys("{Down}{Down}{Down}{Down}");
-							        Ranorex.Mouse.Click(cntrlStr);
-							        Ranorex.Delay.Milliseconds(3000);
-							        
-							        
-							        Host.Local.TryFindSingle(portalqaRepository.Instance.portal.Order_Details.FirstRow, out found); 
-							        if(portalqaRepository.Instance.portal.Order_Details.DateAttached.Visible)
-							        {
-							        	 dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.InnerText;	
-							        	//timeArrivedCompare2 = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
-							       		 timeArray.Add(dateAttached); 
-							        	CentralTimeArray = timeArray;
-							        }
-							        else
-							        {
-							       
-							        
-							       	
-//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
-//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
-							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
-							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
-							      
-							        
-							        
-							        }
+	        					lowerLevelFlag = true; 
 	        				}
 				           
 				        }
-				        else
+				        catch(Exception e)
 				        {
-				        	Report.Info("old catch"); 
-				        	portalqaRepository.Instance.portal.Order_Details.close2.Click();  
+				        	Report.Info("count is off"); 
 				        }
 				        
-				         }}
+				        if(lowerLevelFlag)
+				        {
+				        	
+							cntrlStr = string.Format("/dom[@domain~'devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}"); 
+							Ranorex.Mouse.Click(cntrlStr);
+							Ranorex.Delay.Milliseconds(3000); 
+							Host.Local.TryFindSingle(string.Format("/dom[@domain~'devvprtweb{0}']//div[#'RadWindowWrapper_ctl00_ctl00_OrderDetails']/table/tbody/tr[2]/td[2]/iframe//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ManageAttachmentsCtrl_gridAttachments_ctl00__0']/td[4]".ToString(), StackPortal.ToString()), timeout, out isAttached);
+							   
+							if(isAttached != null)
+							{
+								dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.Element.GetAttributeValueText("InnerText");
+								timeArray.Add(dateAttached); 
+								CentralTimeArray = timeArray; 
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+							else
+							{
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+				        }
+				        
+					    }}
+	     
+	     public static void CentralTimeFaxCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int buttonCount = 02; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string dateReceived; 
+        	 string cntrlStr;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 Ranorex.WebDocument foundPage = portalqaRepository.Instance.portal.Self;
+        	 //bool found = portalqaRepository.Instance.portal.Order_Details.AttachmentsZero;
+        	 bool lowerLevelFlag = false; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 Ranorex.TdTag isAttached = null; 
+        	 Duration timeout = 3000; 
+        	 var window = portalqaRepository.Instance.portal;
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.CentralTimeAdjust(); 
+	         
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 1; j < maxLoop; j ++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+					    try
+				        {
+					        buttonIndexx += buttonCount;
+					        
+					        if(buttonIndexx < 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+					        }
+					        
+					        if(buttonIndexx >= 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter; 
+					        }
+					        
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					lowerLevelFlag = true; 
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				        if(lowerLevelFlag)
+				        {
+				        	
+							cntrlStr = string.Format("/dom[@domain~'devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}"); 
+							Ranorex.Mouse.Click(cntrlStr);
+							Ranorex.Delay.Milliseconds(1000); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}"); 
+							portalqaRepository.Instance.portal.Order_Details.ManageAttachments.PressKeys("{Tab}{Return}");
+							//portalqaRepository.Instance.portal.Order_Details.Faxes.Click(); 
+							Host.Local.TryFindSingle(string.Format("/dom[@domain~'devvprtweb{0}']//div[#'RadWindowWrapper_ctl00_ctl00_OrderDetails']/table/tbody/tr[2]/td[2]/iframe//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ManageAttachmentsCtrl_gridFaxes_ctl00__0']/td[@innertext~'$']".ToString(), StackPortal.ToString()), timeout, out isAttached);
+							   
+							if(isAttached != null)
+							{
+								dateReceived = portalqaRepository.Instance.portal.Order_Details.DateReceived.Element.GetAttributeValueText("InnerText");
+								timeArray.Add(dateReceived); 
+								CentralTimeArray = timeArray; 
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+							else
+							{
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+				        }
+				        
+	     }}
 	    
+	     public static void MountainTimeFaxCompare()
+        {
+        	
+        	 int indexx = -8;
+        	 int offSet = 11;
+        	 int offSet2 = 8; 
+        	 int maxLoop = 0; 
+        	 int multi = indexx + offSet2 - 1; 
+        	 int buttonIndexx = 02; 
+        	 int buttonCount = 02; 
+        	 string buttonCounter = string.Empty;
+        	 string buttonCounter1 = string.Empty; 
+        	 string found = string.Empty;
+        	 string[] textStrArr = {"Created", "Incomplete", "Complete", "Cancelled Without QA"};
+        	 string[] textStrArr2 = {};
+        	 string[] textStrArr3 = {};
+        	 string tmpStr = string.Empty;
+        	 string differenceStr = string.Empty; 
+        	 string dateReceived; 
+        	 string cntrlStr;
+        	 string timeArrivedStr = portalqa.formatted.code.utility.ArrivedCentralTime; 
+        	 string timeArrivedCompare = portalqa.formatted.code.utility.ArrivedMountainTime;
+        	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
+        	 ArrayList timeArray = new ArrayList(); 
+        	 Ranorex.WebDocument foundPage = portalqaRepository.Instance.portal.Self;
+        	 //bool found = portalqaRepository.Instance.portal.Order_Details.AttachmentsZero;
+        	 bool lowerLevelFlag = false; 
+        	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
+        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
+        	 Ranorex.TdTag isAttached = null; 
+        	 Duration timeout = 3000; 
+        	 var window = portalqaRepository.Instance.portal;
+        	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
+        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
+        	 //var editQA = repo.portal.Order_Details.EditQA;
+        	 //var viewQA = repo.portal.Order_Details.View;
+        	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
+        	 var now = System.DateTime.Now;
+        	 var difference = now - date; 
+        	 //Ranorex.DateTime = now - date; 
+        	
+	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
+	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
+	         
+	         portalqa.formatted.testcases.TimeZoneCheck.Instance.MountainTimeAdjust(); 
+	         
+	         maxLoop = (int)(myList2.Count / (offSet));
+         		    
+	         for (int j = 1; j < maxLoop; j ++)
+	         {
+
+				indexx += offSet; 
+				myList2[indexx].MoveTo();
+
+					    try
+				        {
+					        buttonIndexx += buttonCount;
+					        
+					        if(buttonIndexx < 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+					        }
+					        
+					        if(buttonIndexx >= 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter; 
+					        }
+					        
+	        				
+	        				if(buttonIndexx > 0)
+	        				{
+	        					lowerLevelFlag = true; 
+	        				}
+				           
+				        }
+				        catch(Exception e)
+				        {
+				        	Report.Info("count is off"); 
+				        }
+				        
+				        if(lowerLevelFlag)
+				        {
+				        	
+							cntrlStr = string.Format("/dom[@domain~'devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}"); 
+							Ranorex.Mouse.Click(cntrlStr);
+							Ranorex.Delay.Milliseconds(1000); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}{Down}"); 
+							portalqaRepository.Instance.portal.Order_Details.ManageAttachments.PressKeys("{Tab}{Return}");
+							//portalqaRepository.Instance.portal.Order_Details.Faxes.Click(); 
+							Host.Local.TryFindSingle(string.Format("/dom[@domain~'devvprtweb{0}']//div[#'RadWindowWrapper_ctl00_ctl00_OrderDetails']/table/tbody/tr[2]/td[2]/iframe//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ManageAttachmentsCtrl_gridFaxes_ctl00__0']/td[@innertext~'$']".ToString(), StackPortal.ToString()), timeout, out isAttached);
+							   
+							if(isAttached != null)
+							{
+								dateReceived = portalqaRepository.Instance.portal.Order_Details.DateReceived.Element.GetAttributeValueText("InnerText");
+								timeArray.Add(dateReceived); 
+								MountainTimeArray = timeArray; 
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+							else
+							{
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+				        }
+				        
+	     }}
 	    public static void MountainTimeAttachCompare()
         {
         	
@@ -2364,6 +2628,7 @@ namespace portalqa.formatted.code
         	 int butntonCounter = 0; 
         	 int buttonCount = 02; 
         	 int buttonCount1 = 00; 
+        	 int differenceTot = 0; 
         	 string buttonCounter = string.Empty;
         	 string buttonCounter1 = string.Empty; 
         	 string found = string.Empty;
@@ -2381,20 +2646,17 @@ namespace portalqa.formatted.code
         	 string exactTimeZone = portalqaRepository.Instance.portal.WorkList.ExactTimeZone.Element.GetAttributeValueText("InnerText");
         	 ArrayList timeArray = new ArrayList(); 
         	 string[] timeStrArray; 
-        	 int differenceTot = 0; 
+        	 Duration timeout = 3000; 
+        	 bool lowerLevelFlag = false;
         	 Ranorex.SpanTag closeSubmitResults; 
         	 Ranorex.WebElement details2 = portalqaRepository.Instance.portal.WorkList.details2;
-        	 //Ranorex.WebElement close = portalqaRepository.Instance.portal.Order_Details.close2; 
-        	 
+        	 Ranorex.TdTag isAttached = null; 
         	 var window = portalqaRepository.Instance.portal;
         	 var grid = portalqaRepository.Instance.portal.buttons.Column_Headings.rgMasterTable;
-        	 //var close2 = portalqaRepository.Instance.portal.Order_Details.close2;
-        	 //var editQA = repo.portal.Order_Details.EditQA;
-        	 //var viewQA = repo.portal.Order_Details.View;
         	 var date = System.DateTime.Parse("9/18/2012 2:45:44 PM");
         	 var now = System.DateTime.Now;
         	 var difference = now - date; 
-        	 //Ranorex.DateTime = now - date; 
+        	 
         	
 	         IList<Ranorex.TrTag> myList = grid.FindDescendants<Ranorex.TrTag>(); 
 	         IList<Ranorex.TdTag> myList2 = grid.FindDescendants<Ranorex.TdTag>();
@@ -2403,39 +2665,32 @@ namespace portalqa.formatted.code
 	
 	         maxLoop = (int)(myList2.Count / (offSet));
          		    
-	         for (int j = 0; j < 1; j++)
+	          for (int j = 1; j < maxLoop; j ++)
 	         {
 
 				indexx += offSet; 
 				myList2[indexx].MoveTo();
 
-				        try
+					    try
 				        {
 					        buttonIndexx += buttonCount;
-					        buttonCounter = buttonIndexx.ToString(); 
-	        	 			buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
-	        				//buttonCount1 = Convert.ToInt32(buttonCounter1); 
+					        
+					        if(buttonIndexx < 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter.PadLeft(2, '0'); 
+					        }
+					        
+					        if(buttonIndexx >= 10)
+					        {
+					        	buttonCounter = buttonIndexx.ToString(); 
+	        	 				buttonCounter1 = buttonCounter; 
+					        }
+					        
 	        				
 	        				if(buttonIndexx > 0)
 	        				{
-	        					//buttonCounter1 = buttonIndexx.ToString().PadLeft(buttonIndexx, '0');
-							        cntrlStr = string.Format("/dom[@domain='devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
-									
-							        portalqa.portalqaRepository.Instance.portal.Self.PressKeys("{Down}{Down}{Down}{Down}");
-							        Ranorex.Mouse.Click(cntrlStr);
-							        Ranorex.Delay.Milliseconds(3000);
-							        
-							        dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.InnerText;
-							        //timeArrivedCompare2 = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
-							        timeArray.Add(dateAttached); 
-							        MountainTimeArray = timeArray;
-							        
-							       	
-//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.setMountainTime(); 
-//							        portalqa.formatted.testcases.TimeZoneCheck.Instance.DateCentral(); 
-							        //timeArrivedCompare = portalqaRepository.Instance.portal.Order_Details.TimeArrived.Element.GetAttributeValueText("InnerText");
-							        portalqaRepository.Instance.portal.Order_Details.close2.Click();
-							    
+	        					lowerLevelFlag = true; 
 	        				}
 				           
 				        }
@@ -2444,7 +2699,346 @@ namespace portalqa.formatted.code
 				        	Report.Info("count is off"); 
 				        }
 				        
-				         }}
+				        if(lowerLevelFlag)
+				        {
+				        	
+							cntrlStr = string.Format("/dom[@domain~'devvprtweb{0}']//a[#'ctl00_ctl00_Content_ContentPlaceHolderMain_GridWorklist_ctl00_ctl{1}_DetailsBtn']/img[@title='Details']", StackPortal.ToString(), buttonCounter1.ToString()); 
+							Ranorex.Keyboard.Press("{Down}{Down}{Down}{Down}"); 
+							Ranorex.Mouse.Click(cntrlStr);
+							Ranorex.Delay.Milliseconds(3000); 
+							Host.Local.TryFindSingle(string.Format("/dom[@domain~'devvprtweb{0}']//div[#'RadWindowWrapper_ctl00_ctl00_OrderDetails']/table/tbody/tr[2]/td[2]/iframe//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ManageAttachmentsCtrl_gridAttachments_ctl00__0']/td[4]".ToString(), StackPortal.ToString()), timeout, out isAttached);
+							   
+							if(isAttached != null)
+							{
+								dateAttached = portalqaRepository.Instance.portal.Order_Details.DateAttached.Element.GetAttributeValueText("InnerText");
+								timeArray.Add(dateAttached); 
+								MountainTimeArray = timeArray; 
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+							else
+							{
+								portalqaRepository.Instance.portal.Order_Details.close2.Click();
+							}
+							        
+				        }
+				        
+					    }}
+	    
+	    public static void ReportsCentralSubmitDate(string searchString)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	string pattern = @"{TDTag:}";
+	    	string input = arrStr;
+	    	
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchString.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", ""); 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					CentralTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	    
+	     public static void ReportsCentralDistributedDate(string searchString)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	string pattern = @"{TDTag:}";
+	    	string input = arrStr;
+	    	
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchString.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", ""); 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					CentralTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	     
+	       public static void ReportsMountainDistributedDate(string searchString)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchString.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Mountain time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					MountainTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	    
+	      public static void ReportsMountainSubmitDate(string searchString)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchString.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Mountain time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					MountainTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	      
+	      public static void WorklistCentralQACreated(string searchStr)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchStr.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					CentralTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	      
+	      public static void WorklistMountainQACreated(string searchStr)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchStr.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					MountainTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	      
+	      public static int CountSearch()
+	      {
+	      	ArrayList tmpArr = new ArrayList(); 
+	      	string tdStr = "/dom[@domain~'$']//tr[@id~'(?i:GridSearch_ctl00__{0})']/td[@innertext='Complete']"; 
+	      	string countStr; 
+	      	Ranorex.TdTag tdFound;
+	      	Duration timeout = 5000;
+	      	int count = 0; 
+	      	int indexx = 0;
+	      	//while(Host.Local.TryFindSingle("/dom[@domain~'$']//tr[@id~'(?i:GridSearch_ctl00__0)']/td[@innertext='Complete']"))
+	      	
+	      	while(Host.Local.TryFindSingle(string.Format(tdStr, indexx), timeout, out tdFound))
+	      	{
+	      		indexx++;
+	      		tdFound.MoveTo(); 
+	      		tmpArr.Add(tdFound);
+	      		count = tmpArr.Count; 
+	      	 }
+	      	
+	 		countStr = count.ToString(); 
+	 		Report.Info("Total number of QA items: " + countStr); 
+	 		CompletedQA = count; 
+	 		return count;
+	      }
+	      
+	      public static void TypeDate(Ranorex.InputTag box)
+	      {
+	      	System.DateTime now = System.DateTime.Today; 
+	      	string nowStr; 
+	      	
+	      	nowStr = now.ToString("MM/dd/yyyy"); 
+	      	
+	      	try
+	      	{
+	      		box.MoveTo(); 
+	      		box.PressKeys(nowStr);
+	      		Report.Info("Typing END Date: " + nowStr);
+	      	}
+	      	catch(Exception e)
+	      	{
+	      		Report.Failure("fail"); 
+	      	}
+	      	
+	      }
+	      
+	      public static void TypeBeginDate(Ranorex.InputTag box)
+	      {
+	      	System.DateTime now = System.DateTime.Today; 
+	      	System.DateTime monthAgo = now.AddMonths(-1); 
+	      	string monthAgoStr;
+	      	
+	      	monthAgoStr = monthAgo.ToString("MM/01/yy"); 
+	      	
+	      	try
+	      	{
+	      		box.MoveTo(); 
+	      		box.PressKeys(monthAgoStr);
+	      		Report.Info("Typing Begin Date: " + monthAgoStr); 
+	      	}
+	      	catch(Exception e)
+	      	{
+	      		Report.Failure("fail"); 
+	      	}
+	      }
+	      
+	      public static void SearchAndReportsCompare(int reportCount)
+	      {
+	      	if(CompletedQA == reportCount)
+	      	{
+	      		Report.Info("Search Routine determined the count was: " + CompletedQA); 
+	      		Report.Info("Reports Tab determined the count was: " + reportCount); 
+	      		Report.Info("these items match"); 
+	      	}
+	      	
+	      	else
+	      	{
+	      		Report.Info("Search Routine determined the count was: " + CompletedQA); 
+	      		Report.Info("Reports Tab determined the count was: " + reportCount);
+	      		Report.Failure("These items do not match"); 
+	      	}
+	      
+	      }
+	      
+	    
+	    public static void SearchCentralQACreated(string searchStr)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchStr.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					CentralTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
+	    
+	    
+	    public static void SearchMountainQACreated(string searchStr)
+	    {
+	    	Ranorex.TdTag resultStr = null; 
+	    	Ranorex.TdTag resultOutputSt = null; 
+	    	int indexx = 0; 
+	    	string arrStr = string.Empty;  
+	    	Duration timeout = 2000;
+	    	ArrayList timeArray = new ArrayList();  
+	    	
+	    	while (Host.Local.TryFindSingle(string.Format(searchStr.ToString(), StackPortal.ToString(), indexx.ToString()), timeout, out resultStr))
+	    	{
+	    		indexx++;
+	    		
+	    		if(resultStr != null)
+	    		{
+	    			arrStr = resultStr.ToString(); 
+	    			arrStr = arrStr.Replace("}", ""); 
+	    			arrStr = arrStr.Replace("{TdTag:", "");
+	 
+	    			Ranorex.Report.Info("Central time string is" + arrStr);
+	    			timeArray.Add(arrStr);
+					MountainTimeArray = timeArray; 
+	    		}
+	    		
+	    		
+	    	}
+	    }
 	         
           
           public static void DateFinalFirstRow2()
