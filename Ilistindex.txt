@@ -184,6 +184,9 @@ namespace portalqa.formatted.code
         	Ranorex.DivTag export = portalqaRepository.Instance.portal.QAReports.ExportExcel;
         	//Ranorex.WebElement export = "/dom[@domain='devvprtweb407']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00__0']";
         	//Ranorex.DivTag export = "//div[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid']";
+        	Ranorex.Button openButton = null; 
+        	Ranorex.Button openExcelButton = null;
+        	Ranorex.Form maximize = null; 
         	ArrayList btnArr = new ArrayList();
         	Duration timeout = 30000; 
         	Ranorex.SpanTag btn2;
@@ -198,10 +201,31 @@ namespace portalqa.formatted.code
 	        		   	
 	        		   	while(portalqaRepository.Instance.Download.Self.Visible || portalqaRepository.Instance.ExcelTools.Self.Visible == true)
 	        		   	{
-	        		   		portalqaRepository.Instance.Download.open.Click(Location.LowerCenter);
-	        		   		portalqaRepository.Instance.ExcelTools.ExcelYes.Click(); 
-	        		   		break; 
-	        		   		//repo.Download.SelfInfo.WaitForNotExists(120000);
+	        		   		Ranorex.Mouse.Click(portalqaRepository.Instance.Download.open); 
+	         
+	        		   			if(portalqaRepository.Instance.Download.openInfo.Exists())
+					        	{
+					        		Host.Local.TryFindSingle(portalqaRepository.Instance.Download.open.GetPath().ToString(), timeout, out openButton);
+			        		   		openButton.MoveTo(); 
+			        		   		openButton.Click();
+					        	}
+	        		   			
+	        		   			Ranorex.Mouse.Click(portalqaRepository.Instance.ExcelTools.ExcelYes);
+	        		 
+	        		   			if(portalqaRepository.Instance.ExcelTools.ExcelYesInfo.Exists())
+	        		   			{
+	        		   				Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelTools.ExcelYes.GetPath().ToString(), timeout, out openExcelButton);
+			        		   		openExcelButton.MoveTo();
+			        		   		openExcelButton.Click(); 
+			        	
+	        		   			}
+	        		   			
+	        		   			Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelProcess.Self.GetPath().ToString(), timeout, out maximize);
+	        		   			maximize.Maximize(); 
+	        		   			//portalqaRepository.Instance.ExcelProcess.Self.Maximize();
+	        		   			break;
+	        		   		  //portalqaRepository.Instance.Download.SelfInfo.WaitForNotExists(120000);
+	        		   		
 	        		   	}
 	        		   	
 	        		   	/*while(repo.ExcelTools.Self.Visible == true)
@@ -928,7 +952,8 @@ namespace portalqa.formatted.code
             //total calcuations
             
            // introwTotal = introw2 / introw1; 
-            rowTotal = doubleRow2 / doubleRow1;
+            //rowTotal = doubleRow2 / doubleRow1;
+            rowTotal = doubleRow1 / doubleRow2;
             double doubRowTotal = rowTotal * 100; 
             
             //finalTotal = trimTotal; 
