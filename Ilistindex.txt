@@ -40,6 +40,7 @@ namespace portalqa.formatted.code
         public static string RequestID;  
         public static string checkRequestID;  
         public static string PatientName; 
+       	public static string monthCount; 
         public static string UserNameStr = string.Empty;
 		public static string PasswordStr = string.Empty;
 		public static string[] btnCntrlStr2 = {"/dom[@domain='devvprtweb{0}']//form[@title='Warning']/button[@text='OK']"}; 
@@ -54,11 +55,14 @@ namespace portalqa.formatted.code
 		public static string ArrivedCentralTime = string.Empty;
 		public static string ArrivedMountainTime = string.Empty;
 		public static string DateAttached = string.Empty; 
+		public static string MonthCount; 
+        public static string ReportCount; 
 		public static int CompletedQA;
 		public static ArrayList CentralTimeArray = new ArrayList(); 
 		public static ArrayList MountainTimeArray = new ArrayList(); 
 		public static ArrayList CentralTimeQACreatedArray = new ArrayList();
 		public static ArrayList MountainTimeQACreatedArray = new ArrayList(); 
+		public static ArrayList RowInnerNum = new ArrayList();
 		
         public utility()
         {
@@ -201,26 +205,39 @@ namespace portalqa.formatted.code
 	        		   	
 	        		   	while(portalqaRepository.Instance.Download.Self.Visible || portalqaRepository.Instance.ExcelTools.Self.Visible == true)
 	        		   	{
-	        		   		Ranorex.Mouse.Click(portalqaRepository.Instance.Download.open); 
+	        		   			//Ranorex.Mouse.Click(portalqaRepository.Instance.Download.open); 
 	         
 	        		   			if(portalqaRepository.Instance.Download.openInfo.Exists())
 					        	{
-					        		Host.Local.TryFindSingle(portalqaRepository.Instance.Download.open.GetPath().ToString(), timeout, out openButton);
+					        		Host.Local.TryFindSingle(portalqaRepository.Instance.Download.openInfo.AbsolutePath.ToString(), timeout, out openButton);
 			        		   		openButton.MoveTo(); 
 			        		   		openButton.Click();
 					        	}
 	        		   			
 	        		   			Ranorex.Mouse.Click(portalqaRepository.Instance.ExcelTools.ExcelYes);
+	        		   			portalqaRepository.Instance.ExcelProcess.Self.Maximize(); 
 	        		 
 	        		   			if(portalqaRepository.Instance.ExcelTools.ExcelYesInfo.Exists())
 	        		   			{
-	        		   				Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelTools.ExcelYes.GetPath().ToString(), timeout, out openExcelButton);
-			        		   		openExcelButton.MoveTo();
-			        		   		openExcelButton.Click(); 
+	        		   				Keyboard.Press("{Left}{Return}");
+	        		   				
+	        		   				if(portalqaRepository.Instance.ExcelTools.ExcelYesInfo.Exists())
+	        		   				{
+	        		   					Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelTools.ExcelYesInfo.AbsolutePath.ToString(), timeout, out openExcelButton);
+				        		   		openExcelButton.MoveTo();
+				        		   		openExcelButton.Click();
+	        		   				}
+	        		   				
+			        		   		/*if(openExcelButton.Visible == true)
+			        		   		{
+			        		   			Keyboard.Press("{Left}{Return}");
+			        		   			openExcelButton.MoveTo();
+			        		   			openExcelButton.Click(); 
+			        		   		}*/
 			        	
 	        		   			}
 	        		   			
-	        		   			Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelProcess.Self.GetPath().ToString(), timeout, out maximize);
+	        		   			Host.Local.TryFindSingle(portalqaRepository.Instance.ExcelProcess.SelfInfo.AbsolutePath.ToString(), timeout, out maximize);
 	        		   			maximize.Maximize(); 
 	        		   			//portalqaRepository.Instance.ExcelProcess.Self.Maximize();
 	        		   			break;
@@ -3337,6 +3354,216 @@ namespace portalqa.formatted.code
 		      // Log the exception
 		      }
             }
+            
+             			
+         public void example()
+        {
+           
+        	// TrTag allSpan = "/dom[@domain='devvprtweb405']//table[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00_ctl04_ctl00_PrelimByMonthReportGrid_ctl00']/tbody";
+           string trStr = portalqaRepository.Instance.portal.QAReports.tr2Info.AbsolutePath.ToString();
+          string numReports = "0"; 
+          string colMax = "0";
+          string rowMax = "0"; 
+          int rows = -0; 
+          int numMonths;
+          int monthCountInt; 
+          string column = ""; 
+          TBodyTag span = Host.Local.FindSingle(trStr, 30000);
+          TBodyTag span2 = portalqaRepository.Instance.portal.QAReports.tr2; 
+          DivTag final; 
+          string tb; 
+          WebElement tb2; 
+          TBodyTag tbody2; 
+          TrTag build2;
+          DivTag divBuild3; 
+          string dom = "/dom[@domain='devvprtweb405']"; 
+          string trF = "//tr[#'";
+          string trL = "']";
+          string end = "/td[6]/div[2]";
+          string tdEnd = "']//td[6]/div[2]";
+          string build; 
+          string tagStr;
+          string build2Str;
+          string build3; 
+          string tBody = "/td/div/table/tbody/"; 
+          IList<TdTag> tdList;  
+          ArrayList trArr = new ArrayList(); 
+          ArrayList trArr2 = new ArrayList(); 
+          ArrayList tbodyArr = new ArrayList(); 
+          ArrayList tbody2Arr = new ArrayList(); 
+          ArrayList tdArr = new ArrayList(); 
+          ArrayList tbArr = new ArrayList();
+          string monthCountStr = monthCount; 
+          monthCountInt = 8; //Convert.ToInt32(monthCount);
+          /*int totalDivision = monthCountInt * reportCount; 
+           
+          int partitionNum = reportCount; 
+          int subtractValue = totalDivision / reportCount; 
+          int LastPartition = totalDivision - subtractValue; 
+          int middlePartition = maxParition - subtractValue; */
+          int firstPartition = monthCountInt; 
+          int secondPartition = monthCountInt + monthCountInt;
+          int thirdPartititon = monthCountInt * 3;
+          int fourthPartition = monthCountInt + monthCountInt + monthCountInt;
+          int fifthPartition = monthCountInt * 4;
+           
+          
+          //int numMonths = Convert.ToInt32(monthCount); 
+        
+          int numReportsInt = 3; 
+          int numRowInt = 9; //Convert.ToInt32(rowMax);  
+          numRowInt = Convert.ToInt32(monthCount); 
+          int numColInt = Convert.ToInt32(colMax);
+          //string[,] colArr = new string[numReportsInt, ];
+          string[,] colArr = null;
+         
+          
+          var allspan3 = span.FindDescendants<TrTag>();
+          var allspan4 = span2.FindChildren<TrTag>(); 
+         // var allspan5 = tbody2.FindDescendants<TrTag>();
+          
+          //get the root trtag
+          foreach(var tag2 in allspan4)
+          {
+          	tagStr = tag2.ToString().Replace("{TrTag:", "");
+          	tagStr = tagStr.Replace("}", "");
+          	
+          	build = string.Format(dom.ToString() + trF + tagStr.ToString() + trL);
+         
+          	trArr.Add(build); 
+          }
+          
+	          //append the tbody text to it and need to find tr descendents
+	          for(int j =0; j < trArr.Count; j++)
+	          {
+	          	build2Str = trArr[j].ToString(); 
+	          	build = string.Format(trArr[j].ToString() + tBody.ToString());
+	          	//tb = build;
+	          	
+	          	tbArr.Add(build); 
+	          	
+	          	/// build this type of string dom[@domain='devvprtweb405']//tr[#'ctl00_ctl00_Content_ContentPlaceHolderMain_ReportGrid_ctl00__0']/td/div/table/tbody/
+	          	//total number of reports
+	          }
+	          
+		          //get the TRtag from the /tbody base 
+		          for(int h = 0; h < tbArr.Count; h++)
+		          {
+		          	
+		          	build2Str = tbArr[h].ToString();
+		          	tbody2 = build2Str.ToString();
+		   
+		          	var trTags = tbody2.FindDescendants<TrTag>();
+		          	//also derivative of number of months
+		          	monthCount = trTags.Count.ToString(); 
+		          	
+			          	foreach(TrTag tag5 in trTags)
+			          	{
+			          		//cut tag bs
+	
+			          		tagStr = tag5.ToString().Replace("{TrTag:", "");
+				          	tagStr = tagStr.Replace("}", "");
+			          		//pull it out
+			          		//append to final string
+			          		build = string.Format(dom.ToString() + trF + tagStr.ToString() + tdEnd);
+			          		final = build.ToString(); 
+			          		final.Element.GetAttributeValueText("InnerText"); 
+			          		tagStr = final.ToString().Replace("{DivTag:", "");
+				          	tagStr = tagStr.Replace("}", "");
+				          	//intTagInt = Convert.ToInt32(tagStr); 
+			          		trArr2.Add(build);
+			          		
+			          		RowInnerNum.Add(tagStr);
+			          		//colArr[0, 0] = tagStr; 
+			          		
+			          		
+									          			
+			          			
+//			          			for (int i=0; i<numReportsInt; i++)
+//								{
+//									    for (int j=0; j<=numRowInt; j++)
+//									    {
+//									        colArr[i,j] = ("i" + 1) * (j + 1);
+//									    }
+//								}
+			          			
+			          				
+			          		
+			          			/*if(rowInnerNum.Count <= secondPartition)
+			          			{
+			          				for(int j = 0; j < colArr.GetUpperBound(0); j++)
+			          				{
+			          					colArr[i, j] = colArr;
+			          				}
+			          			}
+			          		
+			          				if(rowInnerNum.Count <= thirdPartititon)
+			          				{
+			          					for(int k = 0; k < colArr.GetUpperBound(0); k++)
+			          					{
+			          						colArr[2, 0] = tagStr; 
+			          					}
+			          				}*/
+			          		
+			          	} } 
+       
+       						if(RowInnerNum.Count != null)
+			          		{
+			          			
+			          			colArr = new string[numReportsInt, monthCountInt];
+			          			
+			          			for(int i = 0; i < numReportsInt; i++)
+			          			    {
+			          				
+			          			    	for(int k = 0; k < monthCountInt; k++)
+				          				{
+				          					//colArr = new colArr[];
+			          			    		colArr[i,k] = RowInnerNum[k].ToString();
+			          			    		 
+				          				}
+			          			    	
+			          				}
+			          			
+			          			List<string> one = new List<string>(); 
+       							foreach(string colStr in colArr)
+       							{
+       								one.Add(colStr); 
+       							}
+       						} }
+         
+         public static void GridOne()
+         {
+         	
+         	public string col1 { get; set; }
+         }
+       	
+         public static void NumMonths()
+        {
+        	TBodyTag trTagz = portalqaRepository.Instance.portal.QAReports.InnerGrid;
+        	string trStr = portalqaRepository.Instance.portal.QAReports.InnerGridInfo.AbsolutePath.ToString();
+        	string countNum; 
+        	string total; 
+        	//var trTags;
+        	Duration timeout = 30000;
+        	WebElement count; 
+        	//ArrayList countArr = new ArrayList();
+        	IList<Ranorex.TrTag> countList;
+        	
+        	
+        	/*while(Host.Local.TryFindSingle(trStr, timeout, out count) )
+        	{
+        		countNum = count.Element.GetAttributeValueText("InnerText"); 
+        		countArr.Add(countNum); 
+        		total = countArr.Count.ToString();
+        		Report.Info(total); 
+        	}*/ 
+        	
+        			countList = trTagz.FindDescendants<TrTag>();
+		          	//also derivative of number of months
+		          	monthCount = countList.Count.ToString(); 
+        }
+       			
+         
 		     
              public static bool GetUninstallCommandFor(string publisherDisplayName)
         {
@@ -3628,6 +3855,8 @@ namespace portalqa.formatted.code
             	
             	
         }
+          
+        
           
            
          
